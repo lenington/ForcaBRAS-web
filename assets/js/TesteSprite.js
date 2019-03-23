@@ -1,4 +1,4 @@
-ForcaBRAS.TesteSprite = function (game) {
+﻿ForcaBRAS.TesteSprite = function (game) {
 	
 };
 
@@ -12,8 +12,8 @@ ForcaBRAS.TesteSprite.prototype = {
 
 	create: function () {
 		this.add.image(0, 0, 'Backgroud_Game');
-		//this.add.image(100, 385, 'Teclado');
-		this.add.image(0.5, 0.5, 'Teclado');
+		this.add.image(100, 385, 'Teclado');
+		//this.add.image(0.5, 0.5, 'Teclado');
 
         sprite_personagem = this.add.sprite(100, 100, personagem);
 		sprite_personagem.frame = 0;
