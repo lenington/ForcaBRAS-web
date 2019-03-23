@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt-br" lang="pt-br">
+
+<head>
+    <link rel="icon" type="image/png" href="assets/img/logo.png">
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    
+    <title>ForcaBRAS web</title>
+
+    <script src="assets/js/phaser.min.js"></script>
+    <script src="bower_components/firebase/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.8.6/firebase.js"></script>
+
+    <script src="assets/js/Boot.js"></script>
+    <script src="assets/js/Preloader.js"></script>
+    <script src="assets/js/MainMenu.js"></script>
+    <script src="assets/js/Escolha.js"></script>
+    <script src="assets/js/Sobre.js"></script>
+    <script src="assets/js/Personagens.js"></script>
+    <script src="assets/js/TesteSprite.js"></script>
+    
+    <!-- Firebase App is always required and must be first -->
+    <script src="https://www.gstatic.com/firebasejs/5.7.1/firebase-app.js"></script>
+
+    <!-- Add additional services that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/5.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.1/firebase-messaging.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.1/firebase-functions.js"></script>
+
+    <style>
+        body{
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas{
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game"></div>
+        <div id="orientation"></div>
+
+<script type="text/javascript">
+    (function () {
+    var game = new Phaser.Game(1020, 600, Phaser.CANVAS, 'game');
+    
+    game.Teste = 'MainMenu';
+
+    game.state.add('Boot', ForcaBRAS.Boot);
+    game.state.add('Preloader', ForcaBRAS.Preloader);
+    game.state.add('MainMenu', ForcaBRAS.MainMenu);
+    game.state.add('TelaEscolha', ForcaBRAS.TelaEscolha);
+    game.state.add('Sobre', ForcaBRAS.Sobre);
+    game.state.add('Personagens', ForcaBRAS.Personagens);
+    game.state.add('TesteSprite', ForcaBRAS.TesteSprite);
+
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyA1CmoYnpjbYGQcVl3b1qMCtjoJPCx5FEM",
+        authDomain: "forcabras-phaser.firebaseapp.com",
+        databaseURL: "https://forcabras-phaser.firebaseio.com",
+        projectId: "forcabras-phaser",
+        storageBucket: "forcabras-phaser.appspot.com",
+        messagingSenderId: "576013453414"
+    }; firebase.initializeApp(config);
+
+    game.state.start('Boot');
+
+    })();
+</script>
+</body>
+</html>

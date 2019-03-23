@@ -1,0 +1,169 @@
+ForcaBRAS.MainMenu = function(game){
+    this.music = null;
+    this.playButton = null;
+
+};
+
+async function AsyncReadBD(){
+    let resp = await getDataFirebase(2);
+};
+
+function getDataByID(id){
+    return new Promise((resolve, reject) => {
+        firebaseRef = firebase.database();
+        var array = []; //aray para armazenar a palavra e a dica da mesma
+
+        firebaseRef.ref("Palavras/"+id).on('value', function(snap){
+            array = snap.val();
+
+            resolve(array);
+            return array;
+        }, err => {
+            console.log(err);
+            reject();
+          }
+        );
+    
+    });
+};
+var teste = [];
+ForcaBRAS.MainMenu.prototype = {
+    
+    create: function () {
+
+        this.add.image(0, 0, 'background');
+        
+        this.createButton('play', 525, 195, 
+        function(){
+            this.readBD();
+            
+        });
+        this.createButton('sobre', 525, 345, 
+        function(){
+            this.state.start('Sobre');
+        });
+
+    },
+
+    update: function () {
+        
+    },
+
+    createButton: function(string, x, y, callback){
+        this.add.button(x, y, string, callback, this, 1,0,2);
+    },
+
+    satanas: function(array){
+        
+        if(!(array===null)){
+            console.log(array);
+            palavras.push(array);
+        } else {
+            this.state.start('TelaEscolha');
+        }
+    },
+
+    readBD: function(){
+        var id = 0; 
+        var condition = true; 
+
+        while(condition){
+            getDataByID(id).then((array) => {
+                this.satanas(array);
+
+            }).catch(() => {
+          
+            });
+            
+            id++; //incrementa o ID
+
+            if(id==146) condition = false;
+        }
+        
+    },
+
+
+    createBD: function(){
+        //BANCO DE DADOS:
+        //console.log("ENTROU AQUI");
+		palavras = [['amarelo', 'cor'], ['manga', 'fruta'],
+        ['baleia', 'mamífero marinho'], ['primavera', 'estação do ano'],
+        ['feijão', 'comida'], ['suco', 'bebida saudável'],
+        ['cachorro', 'melhor amigo do homem'], ['gato', 'animal de estimação'],
+        ['água', 'bebida'], ['camisa', 'roupa'],
+        ['bahia', 'estado do brasil'], ['mosquito', 'inseto que voa'],
+        ['janeiro', 'mês do ano'], ['forno', 'aparelho para assar alimentos'],
+        ['porta', 'abertura em uma parede'], ['carro', 'transporte pessoal'],
+        ['violão', 'instrumento musical'], ['sorvete', 'doce gelado'],
+        ['carro', 'transporte'], ['braço', 'faz parte do seu corpo'],
+        ['cadeira', 'lugar onde se pode sentar'], ['televisão', 'meio de comunicação'],
+        ['cama', 'lugar onde se pode deitar'], ['escova', 'higiene bucal'],
+        ['navio', 'transporte aquático'], ['ventilador', 'espanta o calor'],
+        ['futebol', 'esporte'], ['cavalo', 'animal'],
+        ['caderno', 'material escolar'], ['lápis', 'material escolar'],
+        ['goiaba', 'fruta'], ['brasília', 'capital do brasil'],
+        ['barco', 'transporte aquático'], ['notebook', 'computador portátil'], ['japão', 'país'],
+        ['Amazonas', 'maior rio do brasil é'], ['perna', 'faz parte do seu corpo'],
+        ['mão', 'faz parte do seu corpo'], ['forró', 'gênero musical'], ['rock', 'gênero musical'], ['ônibus', 'transporte coletivo'],
+        ['médico', 'Profissional da Saúde'], ['enfermeiro', 'Profissional da Saúde'], ['professor', 'Profissional da Educação'],
+        ['roupa', 'vestuário'], ['vôlei', 'esporte'], ['terror', 'gênero de filme'], ['comédia', 'gênero de filme'], ['ação', 'gênero de filme'], ['geladeira', 'eletrônico doméstico'], ['liquidificador', 'eletrônico doméstico'], ['bola', 'futebol'],
+        ['soma', 'operação básica da matemática'], ['subtração', 'operação básica da matemática'], ['multiplicação', 'operação básica da matemática'], ['divisão', 'operação básica da matemática'],
+        ['relógio', 'equipamento que marca as horas'], ['bicicleta', 'transporte de duas rodas'], ['motocicleta', 'transporte de duas rodas'], ['câmera', 'máquina de tirar fotos'], ['celular', 'meio de comunicação'], ['biblioteca', 'lugar de ler livros'],
+        ['xícara', 'utensílio para beber chá ou café'], ['recreio', 'intervalo escolar'],
+        ['vaso', 'objeto usado para decoração que serve para armazenar flores'],
+        ['caneta', 'objeto usado para escrever'], ['avião', 'transporte aéreo'], ['bota', 'calçado dos pés'],
+        ['sopa', 'alimento com caldo e verduras'], ['colher', 'objeto que leva comida para a boca'],
+        ['prato', 'peça de louça'], ['elefante', 'animal com tromba'],
+        ['escola', 'lugar onde se aprende'], ['felicidade', 'sentimento de alegria'],
+        ['criança', 'ser humano na fase da infância'], ['lua', 'satélite natural da terra'],
+        ['leão', 'rei da selva'], ['parque', 'jardim público de diversão com muitos brinquedos'],
+        ['urso', 'animal forte e peludo'],
+        ['tartaruga', 'animal que possui um casco como casa'], ['jacaré', 'animal parecido com crocodilo'],
+        ['trabalho', 'conjunto de atividades ou tarefa a cumprir'],
+        ['coração', 'órgão que bombeia o sangue'], ['cidade', 'lugar onde habita cidadãos'],
+        ['chuva', 'água que cai do céu'], ['frio', 'contrário de calor'],
+        ['relâmpago', 'clarão elétrico na tempestade'], ['nuvem', 'partículas de água em forma de vapor'],
+        ['calor', 'condição do que é quente'], ['sol', 'centro do sistema solar'],
+        ['cobertor', 'usado para nos manter aquecidos enquanto dormimos'],
+        ['amizade', 'sentimento de grande afeição e simpatia entre pessoas'],
+        ['feio', 'contrário de bonito'], ['morcego', 'mamífero voador'],
+        ['tio', 'irmão da mãe'], ['salvador', 'primeira capital do brasil'],
+        ['domingo', 'primeiro dia da semana'], ['natação', 'esporte praticado na água'],
+        ['português', 'língua oficial do brasil'], ['lençol', 'forra o colchão'],
+        ['laranja', 'fruta cítrica'], ['zebra', 'animal com listras'],
+        ['veterinário', 'médico dos animais'], ['cobra', 'animal rastejante'],
+        ['vaca', 'animal que dá leite'], ['égua', 'feminino de cavalo'],
+        ['flauta', 'instrumento de sopro'], ['abelha', 'animal que produz mel'],
+        ['constelação', 'coletivo de estrelas'], ['flash', 'luz da câmera fotográfica'],
+        ['dentista', 'profissional que cuida da saúde bucal'],
+        ['homem', 'masculino de mulher'], ['ilha', 'porção de terra rodeada por água'],
+        ['faca', 'objeto que corta os alimentos'], ['farmácia', 'local onde se compra remédios'],
+        ['oca', 'moradia de índios'], ['piano', 'instrumento musical com teclas'],
+        ['jornal', 'programa de tv que informa as notícias'], ['baiano', 'adjetivo pátrio da bahia'],
+        ['verde', 'uma das cores da bandeira do brasil'], ['mochila', 'bolsa escolar'],
+        ['madeira', 'matéria prima do papel'], ['cozinha', 'local de preparo dos alimentos'],
+        ['tesoura', 'serve para cortar pano, papel e outras coisas'],
+        ['borracha', 'objeto que apaga erros'], ['óculos', 'melhora a visão'],
+        ['maçã', 'fruto da macieira'], ['fêmur', 'maior osso do corpo'],
+        ['saturno', 'planeta do sistema solar'], ['sábado', 'sétimo dia da semana'],
+        ['terça', 'terceiro dia da semana'], ['sexta', 'sexto dia da semana'],
+        ['anel', 'objeto usado no dedo'], ['esmalte', 'serve para pintar unhas'],
+        ['galinha', 'animal que cacareja'], ['macaco', 'animal que come banana'],
+        ['bolo', 'alimento comum em festas'], ['pétala', 'parte da flor'], ['pomba', 'símbolo da paz'],
+        ['careca', 'quem não tem cabelo'], ['espada', 'arma cortante'],
+        ['quarto', 'cômodo da casa onde dormimos'], ['gelo', 'água em estado sólido'],
+        ['rato', 'inimigo do gato'], ['espelho', 'reflete o que vê']
+        ];
+
+        //ESCRITA NO BANCO DE DADOS:
+        firebaseRef = firebase.database();
+        for (var id = 0; id < palavras.length; id++) {
+        console.log(palavras[id]);
+        firebaseRef.ref("Palavras/" + id).set({
+            palavra: palavras[id][0],
+            dica: palavras[id][1]
+        });
+        }
+    }
+
+};
