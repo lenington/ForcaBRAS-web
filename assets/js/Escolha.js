@@ -2,6 +2,25 @@ ForcaBRAS.TelaEscolha = function (game) {
 	
 };
 
+function getDataByID(id){
+    return new Promise((resolve, reject) => {
+        firebaseRef = firebase.database();
+        var array = []; //aray para armazenar a palavra e a dica da mesma
+
+        firebaseRef.ref("Palavras/"+id).on('value', function(snap){
+            array = snap.val();
+
+            resolve(array);
+            return array;
+        }, err => {
+            console.log(err);
+            reject();
+          }
+        );
+    
+    });
+};
+
 ForcaBRAS.TelaEscolha.prototype = {
 
 	create: function () {
@@ -9,12 +28,14 @@ ForcaBRAS.TelaEscolha.prototype = {
 
 		this.createButton('alfabeto', 350, 150, 
         function(){
-            this.state.start('Personagens');
+            escolha_fase = "alfabeto";
+            this.readBD();
         });
         this.createButton('numerais', 350, 300, 
         function(){
-            palavras = this.sortArray(palavras);
-            console.log(palavras);
+            escolha_fase = "numerais";
+            palavras = this.sortArray(palavras); //embaralha a lista de palavras
+            //console.log(palavras);
             //this.state.start('Personagens');
         });
         this.createButton('voltar', 380, 450, 
@@ -26,6 +47,35 @@ ForcaBRAS.TelaEscolha.prototype = {
             //this.state.start('MainMenu');
         });
 	},
+
+    readBD: function(){
+        var id = 0; 
+        var condition = true; 
+
+        while(condition){
+            getDataByID(id).then((array) => {
+                this.getData(array);
+
+            }).catch(() => {
+          
+            });
+            
+            id++; 
+
+            if(id==146) condition = false;
+        }
+        
+    },
+
+    getData: function(array){
+        
+        if(!(array===null)){
+            console.log(array);
+            palavras.push(array);
+        } else {
+            this.state.start('Personagens'); //passa para a escolha de personagens
+        }
+    },
 
 	createButton: function(string, x, y, callback){
         var button = this.add.button(x, y, string, callback, this, 1,0,2);

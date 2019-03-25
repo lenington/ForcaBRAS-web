@@ -36,6 +36,23 @@ ForcaBRAS.TesteSprite.prototype = {
 		return frame;
 	},
 
+	//adapted from: https://www.w3resource.com/javascript-exercises/javascript-array-exercise-17.php
+    sortArray: function(palavras) {
+        var ctr = palavras.length, temp, index;
+        // While there are elements in the array
+        while (ctr > 0) {
+            // Pick a random index
+            index = Math.floor(Math.random() * ctr);
+            // Decrease ctr by 1
+            ctr--;
+            // And swap the last element with it
+            temp = palavras[ctr];
+            palavras[ctr] = palavras[index];
+            palavras[index] = temp;
+        }
+        return palavras;
+    },
+
 	addBotoesTeclado: function() {
 		var x = 125; var y = 395; var espacamento = 64;
 

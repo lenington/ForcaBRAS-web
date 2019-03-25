@@ -26,8 +26,8 @@ ForcaBRAS.Preloader.prototype = {
 		this.load.spritesheet('numerais', 'assets/img/menu_itens/numerais.png', 313,145);
 
 		//ESCOLHA DE PERSONAGENS:
-		this.load.spritesheet('personagem_1', 'assets/img/menu_itens/personagem_1.png', 205,281);
-		this.load.spritesheet('personagem_2', 'assets/img/menu_itens/personagem_2.png', 205,281);
+		this.load.spritesheet('personagem_1', 'assets/img/menu_itens/personagem_1.PNG', 205,281);
+		this.load.spritesheet('personagem_2', 'assets/img/menu_itens/personagem_2.PNG', 205,281);
 		this.load.spritesheet('personagem_3', 'assets/img/menu_itens/personagem_3.png', 205,281);
 		this.load.spritesheet('personagem_4', 'assets/img/menu_itens/personagem_4.png', 205,281);
 

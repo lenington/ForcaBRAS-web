@@ -4,29 +4,7 @@ ForcaBRAS.MainMenu = function(game){
 
 };
 
-async function AsyncReadBD(){
-    let resp = await getDataFirebase(2);
-};
 
-function getDataByID(id){
-    return new Promise((resolve, reject) => {
-        firebaseRef = firebase.database();
-        var array = []; //aray para armazenar a palavra e a dica da mesma
-
-        firebaseRef.ref("Palavras/"+id).on('value', function(snap){
-            array = snap.val();
-
-            resolve(array);
-            return array;
-        }, err => {
-            console.log(err);
-            reject();
-          }
-        );
-    
-    });
-};
-var teste = [];
 ForcaBRAS.MainMenu.prototype = {
     
     create: function () {
@@ -35,8 +13,7 @@ ForcaBRAS.MainMenu.prototype = {
         
         this.createButton('play', 525, 195, 
         function(){
-            this.readBD();
-            
+            this.state.start('TelaEscolha');
         });
         this.createButton('sobre', 525, 345, 
         function(){
@@ -53,7 +30,7 @@ ForcaBRAS.MainMenu.prototype = {
         this.add.button(x, y, string, callback, this, 1,0,2);
     },
 
-    satanas: function(array){
+    /*satanas: function(array){
         
         if(!(array===null)){
             console.log(array);
@@ -80,7 +57,7 @@ ForcaBRAS.MainMenu.prototype = {
             if(id==146) condition = false;
         }
         
-    },
+    },*/
 
 
     createBD: function(){
