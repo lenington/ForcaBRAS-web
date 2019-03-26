@@ -13,6 +13,7 @@ var array_palavra = []; //array atual da palavra
 var palavra_atual = ""; 
 var palavra = ""; //palavra completa
 var dica = ""; //dica da palavra
+var array_sprites_palavra = []; //array para os labels da palavra
 
 ForcaBRAS.TesteSprite.prototype = {
 
@@ -39,6 +40,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		label_palavra.anchor.setTo(0.5); label_dica.anchor.setTo(0.5);
 
+		this.sprite_letras();
 		this.get_palavra_nova();
 		this.inicializa_palavra();
 
@@ -69,7 +71,7 @@ ForcaBRAS.TesteSprite.prototype = {
 		sprite_personagem.frame = teste;
 
 		palavra = palavras.shift(); //remove e retorna a primeira palavera e dica 
-		console.log(palavra);
+		//console.log(palavra);
 
 		if(teste == 6) teste = 0;
 	},
@@ -94,7 +96,6 @@ ForcaBRAS.TesteSprite.prototype = {
 	verificaLetra: function(botao, letra) {
 		var frame; //frame para certo (3) ou errado (4)
 		var condicao;
-		//DO SOMETING...
 		var palavra_aux = palavra.split(""); //transforma a palavra em array
 		console.log(palavra_aux);
 
@@ -143,6 +144,22 @@ ForcaBRAS.TesteSprite.prototype = {
 		} else if(letra == "Ç"){
 			return "C";
 		} else return letra;
+	},
+
+	sprite_letras: function() {
+		var n = palavra.length; //tamanho da palavra
+		var deslocamento = (64)/2; 
+		var x = 512 - (n)*deslocamento;
+		var palavra_aux = palavra.split(""); //transforma a palavra em array
+
+		for(var i=0; i<n; i++){
+			var letra = this.ignora_acentuacao(palavra_aux[i].toUpperCase());
+			var sprite = this.add.sprite(x, this.world.centerY, letra);
+			array_sprites_palavra[i] = sprite;
+			sprite.frame = 0;
+			x += 64;
+		}
+		//array_sprites_palavra[1].frame=3; //mudar o sprite da letra
 	},
 
 	addBotoesTeclado: function() {
