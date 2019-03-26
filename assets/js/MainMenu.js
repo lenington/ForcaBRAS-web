@@ -29,37 +29,7 @@ ForcaBRAS.MainMenu.prototype = {
     createButton: function(string, x, y, callback){
         this.add.button(x, y, string, callback, this, 1,0,2);
     },
-
-    /*satanas: function(array){
-        
-        if(!(array===null)){
-            console.log(array);
-            palavras.push(array);
-        } else {
-            this.state.start('TelaEscolha');
-        }
-    },
-
-    readBD: function(){
-        var id = 0; 
-        var condition = true; 
-
-        while(condition){
-            getDataByID(id).then((array) => {
-                this.satanas(array);
-
-            }).catch(() => {
-          
-            });
-            
-            id++; //incrementa o ID
-
-            if(id==146) condition = false;
-        }
-        
-    },*/
-
-
+    
     createBD: function(){
         //BANCO DE DADOS:
         //console.log("ENTROU AQUI");

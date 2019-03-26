@@ -7,33 +7,71 @@ var alfabeto = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',
 'U','V','W','X','Y','Z'];
 var botoes = []; //array de objetos de botões (Phaser.Button)
 var teste = 0;
+var label_dica, label_palavra;
+var objeto_atual; //Objeto atual de palavra e dica (Object.palavra, Object.dica)
+var array_palavra = []; //array atual da palavra
+var palavra_atual = ""; 
+var palavra = ""; //palavra completa
+var dica = ""; //dica da palavra
 
 ForcaBRAS.TesteSprite.prototype = {
 
 	create: function () {
 		this.add.image(0, 0, 'Backgroud_Game');
 		this.add.image(100, 385, 'Teclado');
-		//this.add.image(0.5, 0.5, 'Teclado');
 
         sprite_personagem = this.add.sprite(100, 100, personagem);
 		sprite_personagem.frame = 0;
 		
 		this.add.button(525, 195, 'play', this.changeSprite, this, 1,0,2);
 
+		palavras = this.sortArray(palavras); //embaralha a lista de palavras
+
+		objeto_atual = palavras.shift(); //remove e retorna o primeiro object (contendo palavra e dica)
+
+		palavra = objeto_atual.palavra; //primeira palavra 
+		dica = objeto_atual.dica; //dica da primeira palavra
+
+		//texto:
+		var style = { font: "bold 24px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
+		label_dica = this.add.text(this.world.centerX, this.world.centerY-50, "Dica da Palavra", style);
+		label_palavra = this.add.text(this.world.centerX, this.world.centerY, "Palavra", style);
+
+		label_palavra.anchor.setTo(0.5); label_dica.anchor.setTo(0.5);
+
+		this.get_palavra_nova();
+		this.inicializa_palavra();
+
 		this.addBotoesTeclado();
+	},
+
+	get_palavra_nova: function() {
+		objeto_atual = palavras.shift(); //remove e retorna o primeiro object (contendo palavra e dica)
+		if(objeto_atual !== null){
+			palavra = objeto_atual.palavra.toUpperCase(); //primeira palavra 
+			dica = objeto_atual.dica.toUpperCase(); //dica da primeira palavra
+		} else{
+			//FIM DE JOGO!
+		}
+		
+	},
+
+	inicializa_palavra: function() {
+		for(var i = 0; i < palavra.length; i++){
+			palavra_atual += "_";
+		}; 
+		label_palavra.setText((palavra_atual.toString()));
+		label_dica.setText(dica);
 	},
 
 	changeSprite: function() {
 		teste = teste + 1;
 		sprite_personagem.frame = teste;
 
-		if(teste == 6) teste = 0;
-	},
+		palavra = palavras.shift(); //remove e retorna a primeira palavera e dica 
+		console.log(palavra);
 
-	verificaLetra: function(botao, letra) {
-		var frame = 3; //frame para certo (3) ou errado (4)
-		//DO SOMETING...
-		return frame;
+		if(teste == 6) teste = 0;
 	},
 
 	//adapted from: https://www.w3resource.com/javascript-exercises/javascript-array-exercise-17.php
@@ -51,7 +89,55 @@ ForcaBRAS.TesteSprite.prototype = {
             palavras[index] = temp;
         }
         return palavras;
-    },
+	},
+	
+	verificaLetra: function(botao, letra) {
+		var frame; //frame para certo (3) ou errado (4)
+		var condicao;
+		//DO SOMETING...
+		var palavra_aux = palavra.split(""); //transforma a palavra em array
+		console.log(palavra_aux);
+
+		for(var i = 0; i<palavra.length; i++){
+			if(letra == this.ignora_acentuacao(palavra_aux[i])){
+				this.revela_letras(palavra_aux[i], i);
+
+				condicao = true; //basta entrar uma vez para a condição ser verdadeira
+			} 
+		}
+
+		botao.inputEnabled = false; //desabilita o botão
+		if(condicao){
+			frame = 3;
+		} else frame = 4;
+
+		return frame;
+	},
+
+	revela_letras: function(letra, position) {
+		//console.log(letra);
+		//console.log(position);
+		
+
+
+	},
+
+	//função para ignorar a acentuação para comparação
+	ignora_acentuacao: function(letra) {
+		if(letra == "Ã" || letra == "Â" || letra == "Á" || letra == "À"){
+			return "A";
+		} else if(letra == "Õ" || letra == "Ô" || letra == "Ó" || letra == "Ò"){
+			return "O";
+		} else if(letra == "Î" || letra == "Í" || letra == "Ì"){
+			return "I";
+		} else if(letra == "Ê" || letra == "É" || letra == "È"){
+			return "E";
+		} else if(letra == "Ú" || letra == "Û" || letra == "Ù"){
+			return "U";
+		} else if(letra == "Ç"){
+			return "C";
+		} else return letra;
+	},
 
 	addBotoesTeclado: function() {
 		var x = 125; var y = 395; var espacamento = 64;

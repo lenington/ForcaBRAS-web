@@ -34,17 +34,10 @@ ForcaBRAS.TelaEscolha.prototype = {
         this.createButton('numerais', 350, 300, 
         function(){
             escolha_fase = "numerais";
-            palavras = this.sortArray(palavras); //embaralha a lista de palavras
-            //console.log(palavras);
-            //this.state.start('Personagens');
         });
         this.createButton('voltar', 380, 450, 
         function(){
-            //palavras = this.sortArray(palavras);
-            console.log(palavras);
-            var x = palavras.shift();
-            console.log(x);
-            //this.state.start('MainMenu');
+            this.state.start('MainMenu');
         });
 	},
 
@@ -70,8 +63,7 @@ ForcaBRAS.TelaEscolha.prototype = {
     getData: function(array){
         
         if(!(array===null)){
-            console.log(array);
-            palavras.push(array);
+            palavras.push(array); //adiciona na lista de palavras
         } else {
             this.state.start('Personagens'); //passa para a escolha de personagens
         }
