@@ -60,7 +60,7 @@ ForcaBRAS.TesteSprite.prototype = {
 		for(var i = 0; i < palavra.length; i++){
 			palavra_atual += "_";
 		}; 
-		label_palavra.setText((palavra_atual.toString()));
+		label_palavra.setText(palavra_atual);
 		label_dica.setText(dica);
 	},
 
@@ -115,11 +115,17 @@ ForcaBRAS.TesteSprite.prototype = {
 	},
 
 	revela_letras: function(letra, position) {
-		//console.log(letra);
-		//console.log(position);
-		
+		var palavra_aux = palavra_atual.split("");
+		var palavra_prev = ""; //palavra anterior
 
+		//atualiza a palavra na posição passada por parametro
+		palavra_aux[position] = letra;
 
+		for(var i = 0; i<palavra_atual.length; i++){
+			palavra_prev += palavra_aux[i]+"";
+		} 
+		palavra_atual = palavra_prev;
+		label_palavra.setText(palavra_atual); //atualiza o label da palavra
 	},
 
 	//função para ignorar a acentuação para comparação
