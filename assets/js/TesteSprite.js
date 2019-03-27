@@ -28,21 +28,18 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		palavras = this.sortArray(palavras); //embaralha a lista de palavras
 
-		objeto_atual = palavras.shift(); //remove e retorna o primeiro object (contendo palavra e dica)
-
-		palavra = objeto_atual.palavra; //primeira palavra 
-		dica = objeto_atual.dica; //dica da primeira palavra
-
 		//texto:
-		var style = { font: "bold 24px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
+		var style = { font: "bold 20px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
 		label_dica = this.add.text(this.world.centerX, this.world.centerY-50, "Dica da Palavra", style);
-		label_palavra = this.add.text(this.world.centerX, this.world.centerY, "Palavra", style);
+		//label_palavra = this.add.text(this.world.centerX, this.world.centerY, "Palavra", style);
 
-		label_palavra.anchor.setTo(0.5); label_dica.anchor.setTo(0.5);
+		//label_palavra.anchor.setTo(0.5); 
+		label_dica.anchor.setTo(0.5);
 
-		this.sprite_letras();
+		
 		this.get_palavra_nova();
 		this.inicializa_palavra();
+		this.sprite_letras();
 
 		this.addBotoesTeclado();
 	},
@@ -62,7 +59,7 @@ ForcaBRAS.TesteSprite.prototype = {
 		for(var i = 0; i < palavra.length; i++){
 			palavra_atual += "_";
 		}; 
-		label_palavra.setText(palavra_atual);
+		//label_palavra.setText(palavra_atual);
 		label_dica.setText(dica);
 	},
 
@@ -94,7 +91,7 @@ ForcaBRAS.TesteSprite.prototype = {
 	},
 	
 	verificaLetra: function(botao, letra) {
-		var frame; //frame para certo (3) ou errado (4)
+		var frame; //frame para certo (4) ou errado (5)
 		var condicao;
 		var palavra_aux = palavra.split(""); //transforma a palavra em array
 		console.log(palavra_aux);
@@ -109,8 +106,8 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		botao.inputEnabled = false; //desabilita o botão
 		if(condicao){
-			frame = 3;
-		} else frame = 4;
+			frame = 4; //certo 
+		} else frame = 5; //errado 
 
 		return frame;
 	},
@@ -121,12 +118,13 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		//atualiza a palavra na posição passada por parametro
 		palavra_aux[position] = letra;
+		array_sprites_palavra[position].frame = 2; 
 
 		for(var i = 0; i<palavra_atual.length; i++){
 			palavra_prev += palavra_aux[i]+"";
 		} 
 		palavra_atual = palavra_prev;
-		label_palavra.setText(palavra_atual); //atualiza o label da palavra
+		//label_palavra.setText(palavra_atual); //atualiza o label da palavra
 	},
 
 	//função para ignorar a acentuação para comparação
@@ -153,7 +151,7 @@ ForcaBRAS.TesteSprite.prototype = {
 		var palavra_aux = palavra.split(""); //transforma a palavra em array
 
 		for(var i=0; i<n; i++){
-			var letra = this.ignora_acentuacao(palavra_aux[i].toUpperCase());
+			var letra = palavra_aux[i].toUpperCase();
 			var sprite = this.add.sprite(x, this.world.centerY, letra);
 			array_sprites_palavra[i] = sprite;
 			sprite.frame = 0;
@@ -169,7 +167,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(A, 'A');
 			A.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -177,7 +175,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(B, 'B');
 			B.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -185,7 +183,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(C, 'C');
 			C.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -193,7 +191,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(D, 'D');
 			D.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -201,7 +199,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(E, 'E');
 			E.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -209,7 +207,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(F, 'F');
 			F.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -217,7 +215,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(G, 'G');
 			G.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -225,7 +223,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(H, 'H');
 			H.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -233,7 +231,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(I, 'I');
 			I.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -241,7 +239,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(J, 'J');
 			J.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -249,7 +247,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(K, 'K');
 			K.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -257,7 +255,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(L, 'L');
 			L.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -265,7 +263,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(M, 'M');
 			M.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		
 		y = y + espacamento; x = 125;
@@ -274,7 +272,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(N, 'N');
 			N.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -283,7 +281,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(O, 'O');
 			O.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -291,7 +289,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(P, 'P');
 			P.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -299,7 +297,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(Q, 'Q');
 			Q.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -307,7 +305,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(R, 'R');
 			R.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -315,7 +313,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(S, 'S');
 			S.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -323,7 +321,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(T, 'T');
 			T.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -331,7 +329,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(U, 'U');
 			U.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -339,7 +337,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(V, 'V');
 			V.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -347,7 +345,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(W, 'W');
 			W.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -355,7 +353,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(X, 'X');
 			X.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -363,7 +361,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(Y, 'Y');
 			Y.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 		x = x + espacamento;
 
@@ -371,7 +369,7 @@ ForcaBRAS.TesteSprite.prototype = {
 			var frame = this.verificaLetra(Z, 'Z');
 			Z.setFrames(frame);
 
-		}, this, 1,0,2);
+		}, this, 2,1,3);
 
 	},
 
