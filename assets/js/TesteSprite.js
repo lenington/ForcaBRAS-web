@@ -5,32 +5,43 @@
 var A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z;
 var alfabeto = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T',
 'U','V','W','X','Y','Z'];
-var botoes = []; //array de objetos de botões (Phaser.Button)
-var teste = 0;
+var sprite_atual_personagem = 0; //sprite atual do personagem
 var label_dica, label_palavra;
 var objeto_atual; //Objeto atual de palavra e dica (Object.palavra, Object.dica)
 var array_palavra = []; //array atual da palavra
-var palavra_atual = ""; 
 var palavra = ""; //palavra completa
+var tamanho_palavra, tamanho_palavra_aux;
 var dica = ""; //dica da palavra
 var array_sprites_palavra = []; //array para os labels da palavra
+var label_perdeu, label_parabens;
+var play_btn;
+var pontuacao = 0; //pontuação do jogador (10 palavra completa, -2 palavra errada)
+
 
 ForcaBRAS.TesteSprite.prototype = {
 
 	create: function () {
 		this.add.image(0, 0, 'Backgroud_Game');
-		this.add.image(100, 385, 'Teclado');
+		//this.add.image(100, 385, 'Teclado');
+		
+		label_perdeu = this.add.image(320, 150, 'Perdeu'); 
+		label_perdeu.visible = false;
+		label_parabens = this.add.image(283, 105, 'Parabens'); 
+		label_parabens.visible = false;
 
         sprite_personagem = this.add.sprite(100, 100, personagem);
 		sprite_personagem.frame = 0;
 		
-		this.add.button(525, 195, 'play', this.changeSprite, this, 1,0,2);
+		//botões
+		this.add.button(782, 50, 'voltar_menor', this.changeSprite, this, 1,0,2);
+		play_btn = this.add.button(770, 150, 'play_medio', this.jogarNovamente, this, 1,0,2);
+		play_btn.visible = false;
 
 		palavras = this.sortArray(palavras); //embaralha a lista de palavras
 
 		//texto:
-		var style = { font: "bold 20px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
-		label_dica = this.add.text(this.world.centerX, this.world.centerY-50, "Dica da Palavra", style);
+		var style = { font: "bold 18px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
+		label_dica = this.add.text(this.world.centerX, 310, "", style);
 		//label_palavra = this.add.text(this.world.centerX, this.world.centerY, "Palavra", style);
 
 		//label_palavra.anchor.setTo(0.5); 
@@ -44,10 +55,34 @@ ForcaBRAS.TesteSprite.prototype = {
 		this.addBotoesTeclado();
 	},
 
+	jogarNovamente: function(){ console.log(pontuacao);
+		this.get_palavra_nova();
+		this.inicializa_palavra();
+
+		//console.log(array_sprites_palavra);
+		for(var i=0; i<array_sprites_palavra.length; i++){
+			var sprite = array_sprites_palavra[i];
+			sprite.destroy(); //remove o sprite do jogo
+		} array_sprites_palavra = []; //reinicia o aray
+
+		this.sprite_letras();
+		this.on_Off_Botoes(true);
+
+		label_parabens.visible = false;
+		label_perdeu.visible = false;
+		play_btn.visible = false;
+	},
+
+	/**
+	 * 
+	 * 
+	 */
 	get_palavra_nova: function() {
 		objeto_atual = palavras.shift(); //remove e retorna o primeiro object (contendo palavra e dica)
 		if(objeto_atual !== null){
 			palavra = objeto_atual.palavra.toUpperCase(); //primeira palavra 
+			tamanho_palavra = palavra.length; //tamanho da palavra
+			tamanho_palavra_aux = tamanho_palavra; //atribui à variável auxiliadora
 			dica = objeto_atual.dica.toUpperCase(); //dica da primeira palavra
 		} else{
 			//FIM DE JOGO!
@@ -55,17 +90,22 @@ ForcaBRAS.TesteSprite.prototype = {
 		
 	},
 
+	/**
+	 * Inicializa (nova) palavra para jogar
+	 * 
+	 */
 	inicializa_palavra: function() {
-		for(var i = 0; i < palavra.length; i++){
-			palavra_atual += "_";
-		}; 
-		//label_palavra.setText(palavra_atual);
+
 		label_dica.setText(dica);
 	},
 
+	/**
+	 * MELHORAR BASTANTE DEPOIS!!!!!!!
+	 * 
+	 */
 	changeSprite: function() {
-		teste = teste + 1;
-		sprite_personagem.frame = teste;
+		sprite_atual_personagem++;
+		sprite_personagem.frame = sprite_atual_personagem;
 
 		palavra = palavras.shift(); //remove e retorna a primeira palavera e dica 
 		//console.log(palavra);
@@ -90,9 +130,13 @@ ForcaBRAS.TesteSprite.prototype = {
         return palavras;
 	},
 	
+	/**
+	 * Verifica se a letra informada pelo teclado está contida na palavra
+	 * e exibe a quantidade
+	 */
 	verificaLetra: function(botao, letra) {
 		var frame; //frame para certo (4) ou errado (5)
-		var condicao;
+		var condicao; 
 		var palavra_aux = palavra.split(""); //transforma a palavra em array
 		console.log(palavra_aux);
 
@@ -101,33 +145,72 @@ ForcaBRAS.TesteSprite.prototype = {
 				this.revela_letras(palavra_aux[i], i);
 
 				condicao = true; //basta entrar uma vez para a condição ser verdadeira
+				
+				tamanho_palavra_aux--; //decrementa 
+
+				if(tamanho_palavra_aux == 0){ //concluiu a palavra
+					label_parabens.visible = true; 
+					this.finalFase();
+					this.on_Off_Botoes(false); //desabilita os botões
+					pontuacao = pontuacao + 10; //ATUALIZA A PONTUAÇÃO
+					sprite_personagem.frame = 0; //frame do personagem inicial
+					play_btn.visible = true;
+				}
 			} 
 		}
 
 		botao.inputEnabled = false; //desabilita o botão
 		if(condicao){
 			frame = 4; //certo 
-		} else frame = 5; //errado 
+		} else {
+			frame = 5; //errado 
+			this.removeParteDoCorpo();
+		}
 
 		return frame;
 	},
 
+	/**
+	 * 
+	 * 
+	 */
+	removeParteDoCorpo: function(){
+		if(sprite_personagem.frame != 6){
+			sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+		} else { //CONDIÇÃO DE PERDER!
+			pontuacao = pontuacao -2;
+			sprite_personagem.visible = false;
+			label_perdeu.visible = true;
+			this.on_Off_Botoes(false); //desabilita os botões
+			this.mostrarPalavraCompleta(); //mostra a palavra completa
+			play_btn.visible = true;
+		}
+	},
+
+	mostrarPalavraCompleta: function(){
+		for(var i=0; i<array_sprites_palavra.length; i++){
+			if(array_sprites_palavra[i].frame != 2){
+				array_sprites_palavra[i].frame = 2; //revela as ocultas
+			}
+		}
+	},
+
+	/**
+	 * Revela letras no painel de palavras ocultas
+	 * 
+	 */
 	revela_letras: function(letra, position) {
-		var palavra_aux = palavra_atual.split("");
-		var palavra_prev = ""; //palavra anterior
+		var palavra_aux = palavra.split("");
 
 		//atualiza a palavra na posição passada por parametro
 		palavra_aux[position] = letra;
 		array_sprites_palavra[position].frame = 2; 
-
-		for(var i = 0; i<palavra_atual.length; i++){
-			palavra_prev += palavra_aux[i]+"";
-		} 
-		palavra_atual = palavra_prev;
-		//label_palavra.setText(palavra_atual); //atualiza o label da palavra
 	},
 
-	//função para ignorar a acentuação para comparação
+	/**
+	 * função para ignorar a acentuação para comparação
+	 * 
+	 */
 	ignora_acentuacao: function(letra) {
 		if(letra == "Ã" || letra == "Â" || letra == "Á" || letra == "À"){
 			return "A";
@@ -144,24 +227,90 @@ ForcaBRAS.TesteSprite.prototype = {
 		} else return letra;
 	},
 
+	/**
+	 * Função para colocar os sprites das letras da palavra centralizadas
+	 * 
+	 */
 	sprite_letras: function() {
 		var n = palavra.length; //tamanho da palavra
 		var deslocamento = (64)/2; 
 		var x = 512 - (n)*deslocamento;
 		var palavra_aux = palavra.split(""); //transforma a palavra em array
 
+		//verifica cada letra e guarda no array 
 		for(var i=0; i<n; i++){
 			var letra = palavra_aux[i].toUpperCase();
-			var sprite = this.add.sprite(x, this.world.centerY, letra);
+			var sprite = this.add.sprite(x, 340, letra);
 			array_sprites_palavra[i] = sprite;
 			sprite.frame = 0;
 			x += 64;
 		}
-		//array_sprites_palavra[1].frame=3; //mudar o sprite da letra
 	},
 
+	on_Off_Botoes: function(condicao){
+		A.inputEnabled = condicao; 
+		B.inputEnabled = condicao; 
+		C.inputEnabled = condicao; 
+		D.inputEnabled = condicao; 
+		E.inputEnabled = condicao; 
+		F.inputEnabled = condicao; 
+		G.inputEnabled = condicao; 
+		H.inputEnabled = condicao; 
+		I.inputEnabled = condicao; 
+		J.inputEnabled = condicao; 
+		K.inputEnabled = condicao; 
+		L.inputEnabled = condicao; 
+		M.inputEnabled = condicao; 
+		N.inputEnabled = condicao; 
+		O.inputEnabled = condicao; 
+		P.inputEnabled = condicao; 
+		Q.inputEnabled = condicao; 
+		R.inputEnabled = condicao; 
+		S.inputEnabled = condicao; 
+		T.inputEnabled = condicao; 
+		U.inputEnabled = condicao; 
+		V.inputEnabled = condicao; 
+		W.inputEnabled = condicao; 
+		X.inputEnabled = condicao; 
+		Y.inputEnabled = condicao; 
+		Z.inputEnabled = condicao; 
+
+		if(condicao == true){
+			A.setFrames(2,1,3); 
+			B.setFrames(2,1,3); 
+			C.setFrames(2,1,3); 
+			D.setFrames(2,1,3); 
+			E.setFrames(2,1,3); 
+			F.setFrames(2,1,3); 
+			G.setFrames(2,1,3); 
+			H.setFrames(2,1,3); 
+			I.setFrames(2,1,3); 
+			J.setFrames(2,1,3); 
+			K.setFrames(2,1,3); 
+			L.setFrames(2,1,3); 
+			M.setFrames(2,1,3); 
+			N.setFrames(2,1,3); 
+			O.setFrames(2,1,3); 
+			P.setFrames(2,1,3); 
+			Q.setFrames(2,1,3); 
+			R.setFrames(2,1,3); 
+			S.setFrames(2,1,3); 
+			T.setFrames(2,1,3); 
+			U.setFrames(2,1,3); 
+			V.setFrames(2,1,3); 
+			W.setFrames(2,1,3); 
+			X.setFrames(2,1,3); 
+			Y.setFrames(2,1,3); 
+			Z.setFrames(2,1,3);
+		}
+	},
+	
+	/**
+	 * Insere os botões do teclado na tela do jogo
+	 * 
+	 */
 	addBotoesTeclado: function() {
-		var x = 125; var y = 395; var espacamento = 64;
+		var x = 96; var y = 435; var espacamento = 64;
 
 		A = this.add.button(x, y, 'A', function(){
 			var frame = this.verificaLetra(A, 'A');
@@ -266,7 +415,7 @@ ForcaBRAS.TesteSprite.prototype = {
 		}, this, 2,1,3);
 
 		
-		y = y + espacamento; x = 125;
+		y = y + espacamento; x = 96;
 
 		N = this.add.button(x, y, 'N', function(){
 			var frame = this.verificaLetra(N, 'N');
