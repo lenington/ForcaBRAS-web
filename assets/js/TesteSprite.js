@@ -6,7 +6,7 @@ var A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z
 var alfabeto = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T',
 'U','V','W','X','Y','Z'];
 var sprite_atual_personagem = 0; //sprite atual do personagem
-var label_dica, label_palavra;
+var label_dica;
 var objeto_atual; //Objeto atual de palavra e dica (Object.palavra, Object.dica)
 var array_palavra = []; //array atual da palavra
 var palavra = ""; //palavra completa
@@ -16,6 +16,7 @@ var array_sprites_palavra = []; //array para os labels da palavra
 var label_perdeu, label_parabens;
 var play_btn;
 var pontuacao = 0; //pontuação do jogador (10 palavra completa, -2 palavra errada)
+var blocos = []; //blocos da dica
 
 
 ForcaBRAS.TesteSprite.prototype = {
@@ -33,7 +34,9 @@ ForcaBRAS.TesteSprite.prototype = {
 		sprite_personagem.frame = 0;
 		
 		//botões
-		this.add.button(782, 50, 'voltar_menor', this.changeSprite, this, 1,0,2);
+		this.add.button(782, 50, 'voltar_menor', function(){
+            this.state.start('MainMenu');
+        }, this, 1,0,2);
 		play_btn = this.add.button(770, 150, 'play_medio', this.jogarNovamente, this, 1,0,2);
 		play_btn.visible = false;
 
@@ -44,20 +47,17 @@ ForcaBRAS.TesteSprite.prototype = {
 		label_dica = this.add.text(this.world.centerX, 310, "", style);
 		//label_palavra = this.add.text(this.world.centerX, this.world.centerY, "Palavra", style);
 
-		//label_palavra.anchor.setTo(0.5); 
 		label_dica.anchor.setTo(0.5);
-
 		
 		this.get_palavra_nova();
-		this.inicializa_palavra();
 		this.sprite_letras();
 
 		this.addBotoesTeclado();
 	},
 
 	jogarNovamente: function(){ console.log(pontuacao);
+		this.removeBlocosDica();
 		this.get_palavra_nova();
-		this.inicializa_palavra();
 
 		//console.log(array_sprites_palavra);
 		for(var i=0; i<array_sprites_palavra.length; i++){
@@ -71,6 +71,9 @@ ForcaBRAS.TesteSprite.prototype = {
 		label_parabens.visible = false;
 		label_perdeu.visible = false;
 		play_btn.visible = false;
+
+		sprite_personagem.frame = 0; //frame do personagem inicial
+		sprite_personagem.visible = true;
 	},
 
 	/**
@@ -84,33 +87,38 @@ ForcaBRAS.TesteSprite.prototype = {
 			tamanho_palavra = palavra.length; //tamanho da palavra
 			tamanho_palavra_aux = tamanho_palavra; //atribui à variável auxiliadora
 			dica = objeto_atual.dica.toUpperCase(); //dica da primeira palavra
+			label_dica.setText(dica);
+
+			this.blocosDica(dica.length);
 		} else{
 			//FIM DE JOGO!
 		}
 		
 	},
 
-	/**
-	 * Inicializa (nova) palavra para jogar
-	 * 
-	 */
-	inicializa_palavra: function() {
-
-		label_dica.setText(dica);
+	blocosDica: function(tamanho_dica){
+		dica_aux = dica.split(""); //
+		var x = 200, y = 210;
+		
+		blocos[0] = this.add.sprite(x, y, "bloco_1");
+		x = x + 12;
+		for(var i = 0; i<dica_aux.length; i++){
+			if(dica_aux[i] == 'I'){
+				blocos[i+1] = this.add.sprite(x, y, "bloco_4");
+				x = x + 5;
+			} else {
+				blocos[i+1] = this.add.sprite(x, y, "bloco_2");
+				x = x + 12;
+			}
+		}
+		blocos[dica.length+1] = this.add.sprite(x, y, "bloco_3");
 	},
 
-	/**
-	 * MELHORAR BASTANTE DEPOIS!!!!!!!
-	 * 
-	 */
-	changeSprite: function() {
-		sprite_atual_personagem++;
-		sprite_personagem.frame = sprite_atual_personagem;
-
-		palavra = palavras.shift(); //remove e retorna a primeira palavera e dica 
-		//console.log(palavra);
-
-		if(teste == 6) teste = 0;
+	removeBlocosDica: function(){
+		for(var i=0; i<blocos.length; i++){
+			var sprite = blocos[i];
+			sprite.destroy(); //remove o sprite do jogo
+		} blocos = []; //reinicia o aray
 	},
 
 	//adapted from: https://www.w3resource.com/javascript-exercises/javascript-array-exercise-17.php
@@ -150,10 +158,8 @@ ForcaBRAS.TesteSprite.prototype = {
 
 				if(tamanho_palavra_aux == 0){ //concluiu a palavra
 					label_parabens.visible = true; 
-					this.finalFase();
 					this.on_Off_Botoes(false); //desabilita os botões
 					pontuacao = pontuacao + 10; //ATUALIZA A PONTUAÇÃO
-					sprite_personagem.frame = 0; //frame do personagem inicial
 					play_btn.visible = true;
 				}
 			} 

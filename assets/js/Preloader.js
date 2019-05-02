@@ -20,14 +20,20 @@ ForcaBRAS.Preloader.prototype = {
 		this.load.image('Perdeu', 'assets/img/menu_itens/perdeu.png');
 		this.load.image('Parabens', 'assets/img/menu_itens/parabens.png');
 
+		//BLOCO DICA
+		this.load.spritesheet('bloco_1', 'assets/img/menu_itens/bloco_1.PNG', 22,22); //bloco inicial
+		this.load.spritesheet('bloco_2', 'assets/img/menu_itens/bloco_2.PNG', 22,22); //blocos centrais
+		this.load.spritesheet('bloco_3', 'assets/img/menu_itens/bloco_3.PNG', 22,22); //bloco fechado
+		this.load.spritesheet('bloco_4', 'assets/img/menu_itens/bloco_4.PNG', 13,22); //para os Is
+
 		//BOTÕES MENU:
-		this.load.spritesheet('play', 'assets/img/menu_itens/play.png', 313,145);
+		this.load.spritesheet('play', 'assets/img/menu_itens/play.png', 319,149);
 		this.load.spritesheet('play_medio', 'assets/img/menu_itens/play_medio.png', 208,99);
-		this.load.spritesheet('sobre', 'assets/img/menu_itens/sobre.png', 313,145);
-		this.load.spritesheet('voltar', 'assets/img/menu_itens/voltar.png', 236,112);
-		this.load.spritesheet('voltar_menor', 'assets/img/menu_itens/voltar154-71px.png', 150,71);
-		this.load.spritesheet('alfabeto', 'assets/img/menu_itens/alfabeto.png', 313,145);
-		this.load.spritesheet('numerais', 'assets/img/menu_itens/numerais.png', 313,145);
+		this.load.spritesheet('sobre', 'assets/img/menu_itens/sobre.png', 319,149);
+		this.load.spritesheet('voltar', 'assets/img/menu_itens/voltar.png', 228,106);
+		this.load.spritesheet('voltar_menor', 'assets/img/menu_itens/voltar154-71px.png', 175,81);
+		this.load.spritesheet('alfabeto', 'assets/img/menu_itens/alfabeto.png', 319,149);
+		this.load.spritesheet('numerais', 'assets/img/menu_itens/numerais.png', 319,149);
 
 		//ESCOLHA DE PERSONAGENS:
 		this.load.spritesheet('personagem_1', 'assets/img/menu_itens/personagem_1.PNG', 205,281);
