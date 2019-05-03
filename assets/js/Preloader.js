@@ -21,10 +21,8 @@ ForcaBRAS.Preloader.prototype = {
 		this.load.image('Parabens', 'assets/img/menu_itens/parabens.png');
 
 		//BLOCO DICA
-		this.load.spritesheet('bloco_1', 'assets/img/menu_itens/bloco_1.PNG', 22,22); //bloco inicial
-		this.load.spritesheet('bloco_2', 'assets/img/menu_itens/bloco_2.PNG', 22,22); //blocos centrais
-		this.load.spritesheet('bloco_3', 'assets/img/menu_itens/bloco_3.PNG', 22,22); //bloco fechado
-		this.load.spritesheet('bloco_4', 'assets/img/menu_itens/bloco_4.PNG', 13,22); //para os Is
+		this.load.spritesheet('ballon_1', 'assets/img/menu_itens/ballon_1.PNG', 11,50); //bloco grande
+		this.load.spritesheet('ballons', 'assets/img/menu_itens/ballonsInOut.PNG', 72,50); //Entrada e saída do balão
 
 		//BOTÕES MENU:
 		this.load.spritesheet('play', 'assets/img/menu_itens/play.png', 319,149);
@@ -47,7 +45,7 @@ ForcaBRAS.Preloader.prototype = {
 		this.load.spritesheet('menina_1', 'assets/img/personagens/menina_1.png', 139, 229, 7);
 		this.load.spritesheet('menina_2', 'assets/img/personagens/menina_2.png', 162, 219, 7);
 
-		//BOTÕES ALFABETO
+		//BOTÕES ALFABETO: FÁCIL
 		this.load.spritesheet('A', 'assets/img/letras/letra-A.png', 60, 60, 6);
 		this.load.spritesheet('Ã', 'assets/img/letras/letra-A1.png', 60, 60, 6); //Ã
 		this.load.spritesheet('Â', 'assets/img/letras/letra-A2.png', 60, 60, 6); //Â

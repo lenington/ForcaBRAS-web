@@ -42,12 +42,10 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		palavras = this.sortArray(palavras); //embaralha a lista de palavras
 
-		//texto:
-		var style = { font: "bold 18px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
-		label_dica = this.add.text(this.world.centerX, 310, "", style);
+		
 		//label_palavra = this.add.text(this.world.centerX, this.world.centerY, "Palavra", style);
 
-		label_dica.anchor.setTo(0.5);
+		//label_dica.anchor.setTo(0.5);
 		
 		this.get_palavra_nova();
 		this.sprite_letras();
@@ -87,7 +85,6 @@ ForcaBRAS.TesteSprite.prototype = {
 			tamanho_palavra = palavra.length; //tamanho da palavra
 			tamanho_palavra_aux = tamanho_palavra; //atribui à variável auxiliadora
 			dica = objeto_atual.dica.toUpperCase(); //dica da primeira palavra
-			label_dica.setText(dica);
 
 			this.blocosDica(dica.length);
 		} else{
@@ -97,21 +94,44 @@ ForcaBRAS.TesteSprite.prototype = {
 	},
 
 	blocosDica: function(tamanho_dica){
+		this.deleteDicaLabel(); //deleta apra iniciar um novo
+
 		dica_aux = dica.split(""); //
 		var x = 200, y = 210;
+
+		var sprite = this.add.sprite(x, y, 'ballons');
+		sprite.frame = 0;
+		blocos[0] = sprite;
+		x = x + 72;
 		
-		blocos[0] = this.add.sprite(x, y, "bloco_1");
-		x = x + 12;
 		for(var i = 0; i<dica_aux.length; i++){
-			if(dica_aux[i] == 'I'){
-				blocos[i+1] = this.add.sprite(x, y, "bloco_4");
-				x = x + 5;
-			} else {
-				blocos[i+1] = this.add.sprite(x, y, "bloco_2");
-				x = x + 12;
-			}
-		}
-		blocos[dica.length+1] = this.add.sprite(x, y, "bloco_3");
+			sprite = this.add.sprite(x, y, 'ballon_1');
+			blocos[i+1] = sprite;
+			x = x + 11;
+		} 
+		//adiciona mais um para garantir espaço
+		sprite = this.add.sprite(x, y, 'ballon_1');
+		blocos[dica.length+1] = sprite;
+		x = x + 11;
+
+		sprite = this.add.sprite(x, y, "ballons");
+		sprite.frame = 1;
+		blocos[dica.length+2] = sprite; 
+
+		this.createDicaLabel();
+	},
+
+	createDicaLabel: function(){
+		//texto da dica da palavra atual:
+		var style = { font: "bold 18px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
+		label_dica = this.add.text(250, 233, "", style);
+		
+		label_dica.setText(dica);
+	},
+
+	deleteDicaLabel: function(){
+		//remore a dica atual para iniciar uma nova
+		this.world.remove(label_dica);
 	},
 
 	removeBlocosDica: function(){
