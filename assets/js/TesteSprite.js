@@ -33,7 +33,7 @@ ForcaBRAS.TesteSprite.prototype = {
         sprite_personagem = this.add.sprite(100, 100, personagem);
 		sprite_personagem.frame = 0;
 		
-		//botões
+		//botões 
 		this.add.button(782, 50, 'voltar_menor', function(){
             this.state.start('MainMenu');
         }, this, 1,0,2);
@@ -94,8 +94,6 @@ ForcaBRAS.TesteSprite.prototype = {
 	},
 
 	blocosDica: function(tamanho_dica){
-		this.deleteDicaLabel(); //deleta apra iniciar um novo
-
 		dica_aux = dica.split(""); //
 		var x = 200, y = 210;
 
@@ -132,6 +130,7 @@ ForcaBRAS.TesteSprite.prototype = {
 	deleteDicaLabel: function(){
 		//remore a dica atual para iniciar uma nova
 		this.world.remove(label_dica);
+		this.removeBlocosDica();
 	},
 
 	removeBlocosDica: function(){
@@ -170,7 +169,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		for(var i = 0; i<palavra.length; i++){
 			if(letra == this.ignora_acentuacao(palavra_aux[i])){
-				this.revela_letras(palavra_aux[i], i);
+				this.revela_letras(palavra_aux[i].toLowerCase(), i);
 
 				condicao = true; //basta entrar uma vez para a condição ser verdadeira
 				
@@ -181,6 +180,10 @@ ForcaBRAS.TesteSprite.prototype = {
 					this.on_Off_Botoes(false); //desabilita os botões
 					pontuacao = pontuacao + 10; //ATUALIZA A PONTUAÇÃO
 					play_btn.visible = true;
+					this.deleteDicaLabel(); //deleta o label da dica iniciar um novo
+
+					sprite_personagem.frame = 0; //frame do personagem inicial
+					sprite_personagem.visible = true;
 				}
 			} 
 		}
@@ -209,14 +212,15 @@ ForcaBRAS.TesteSprite.prototype = {
 			label_perdeu.visible = true;
 			this.on_Off_Botoes(false); //desabilita os botões
 			this.mostrarPalavraCompleta(); //mostra a palavra completa
+			this.deleteDicaLabel(); //deleta o label da dica iniciar um novo
 			play_btn.visible = true;
 		}
 	},
 
 	mostrarPalavraCompleta: function(){
 		for(var i=0; i<array_sprites_palavra.length; i++){
-			if(array_sprites_palavra[i].frame != 2){
-				array_sprites_palavra[i].frame = 2; //revela as ocultas
+			if(array_sprites_palavra[i].frame != 1){
+				array_sprites_palavra[i].frame = 1; //revela as ocultas
 			}
 		}
 	},
@@ -227,10 +231,9 @@ ForcaBRAS.TesteSprite.prototype = {
 	 */
 	revela_letras: function(letra, position) {
 		var palavra_aux = palavra.split("");
-
 		//atualiza a palavra na posição passada por parametro
 		palavra_aux[position] = letra;
-		array_sprites_palavra[position].frame = 2; 
+		array_sprites_palavra[position].frame = 1; 
 	},
 
 	/**
@@ -265,7 +268,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		//verifica cada letra e guarda no array 
 		for(var i=0; i<n; i++){
-			var letra = palavra_aux[i].toUpperCase();
+			var letra = palavra_aux[i].toLowerCase(); console.log(letra);
 			var sprite = this.add.sprite(x, 340, letra);
 			array_sprites_palavra[i] = sprite;
 			sprite.frame = 0;
@@ -338,7 +341,7 @@ ForcaBRAS.TesteSprite.prototype = {
 	addBotoesTeclado: function() {
 		var x = 96; var y = 435; var espacamento = 64;
 
-		A = this.add.button(x, y, 'A', function(){
+		A = this.add.button(x, y, 'A'+escolha_nivel, function(){
 			var frame = this.verificaLetra(A, 'A');
 			A.setFrames(frame);
 
@@ -346,7 +349,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		B = this.add.button(x, y, 'B', function(){
+		B = this.add.button(x, y, 'B'+escolha_nivel, function(){
 			var frame = this.verificaLetra(B, 'B');
 			B.setFrames(frame);
 
@@ -354,7 +357,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		C = this.add.button(x, y, 'C', function(){
+		C = this.add.button(x, y, 'C'+escolha_nivel, function(){
 			var frame = this.verificaLetra(C, 'C');
 			C.setFrames(frame);
 
@@ -362,7 +365,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		D = this.add.button(x, y, 'D', function(){
+		D = this.add.button(x, y, 'D'+escolha_nivel, function(){
 			var frame = this.verificaLetra(D, 'D');
 			D.setFrames(frame);
 
@@ -370,7 +373,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		E = this.add.button(x, y, 'E', function(){
+		E = this.add.button(x, y, 'E'+escolha_nivel, function(){
 			var frame = this.verificaLetra(E, 'E');
 			E.setFrames(frame);
 
@@ -378,7 +381,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		F = this.add.button(x, y, 'F', function(){
+		F = this.add.button(x, y, 'F'+escolha_nivel, function(){
 			var frame = this.verificaLetra(F, 'F');
 			F.setFrames(frame);
 
@@ -386,7 +389,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		G = this.add.button(x, y, 'G', function(){
+		G = this.add.button(x, y, 'G'+escolha_nivel, function(){
 			var frame = this.verificaLetra(G, 'G');
 			G.setFrames(frame);
 
@@ -394,7 +397,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		H = this.add.button(x, y, 'H', function(){
+		H = this.add.button(x, y, 'H'+escolha_nivel, function(){
 			var frame = this.verificaLetra(H, 'H');
 			H.setFrames(frame);
 
@@ -402,7 +405,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		I = this.add.button(x, y, 'I', function(){
+		I = this.add.button(x, y, 'I'+escolha_nivel, function(){
 			var frame = this.verificaLetra(I, 'I');
 			I.setFrames(frame);
 
@@ -410,7 +413,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		J = this.add.button(x, y, 'J', function(){
+		J = this.add.button(x, y, 'J'+escolha_nivel, function(){
 			var frame = this.verificaLetra(J, 'J');
 			J.setFrames(frame);
 
@@ -418,7 +421,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		K = this.add.button(x, y, 'K', function(){
+		K = this.add.button(x, y, 'K'+escolha_nivel, function(){
 			var frame = this.verificaLetra(K, 'K');
 			K.setFrames(frame);
 
@@ -426,7 +429,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		L = this.add.button(x, y, 'L', function(){
+		L = this.add.button(x, y, 'L'+escolha_nivel, function(){
 			var frame = this.verificaLetra(L, 'L');
 			L.setFrames(frame);
 
@@ -434,7 +437,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		M = this.add.button(x, y, 'M', function(){
+		M = this.add.button(x, y, 'M'+escolha_nivel, function(){
 			var frame = this.verificaLetra(M, 'M');
 			M.setFrames(frame);
 
@@ -443,7 +446,7 @@ ForcaBRAS.TesteSprite.prototype = {
 		
 		y = y + espacamento; x = 96;
 
-		N = this.add.button(x, y, 'N', function(){
+		N = this.add.button(x, y, 'N'+escolha_nivel, function(){
 			var frame = this.verificaLetra(N, 'N');
 			N.setFrames(frame);
 
@@ -452,7 +455,7 @@ ForcaBRAS.TesteSprite.prototype = {
 		x = x + espacamento;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		O = this.add.button(x, y, 'O', function(){
+		O = this.add.button(x, y, 'O'+escolha_nivel, function(){
 			var frame = this.verificaLetra(O, 'O');
 			O.setFrames(frame);
 
@@ -460,7 +463,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		P = this.add.button(x, y, 'P', function(){
+		P = this.add.button(x, y, 'P'+escolha_nivel, function(){
 			var frame = this.verificaLetra(P, 'P');
 			P.setFrames(frame);
 
@@ -468,7 +471,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		Q = this.add.button(x, y, 'Q', function(){
+		Q = this.add.button(x, y, 'Q'+escolha_nivel, function(){
 			var frame = this.verificaLetra(Q, 'Q');
 			Q.setFrames(frame);
 
@@ -476,7 +479,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		R = this.add.button(x, y, 'R', function(){
+		R = this.add.button(x, y, 'R'+escolha_nivel, function(){
 			var frame = this.verificaLetra(R, 'R');
 			R.setFrames(frame);
 
@@ -484,7 +487,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		S = this.add.button(x, y, 'S', function(){
+		S = this.add.button(x, y, 'S'+escolha_nivel, function(){
 			var frame = this.verificaLetra(S, 'S');
 			S.setFrames(frame);
 
@@ -492,7 +495,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		T = this.add.button(x, y, 'T', function(){
+		T = this.add.button(x, y, 'T'+escolha_nivel, function(){
 			var frame = this.verificaLetra(T, 'T');
 			T.setFrames(frame);
 
@@ -500,7 +503,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		U = this.add.button(x, y, 'U', function(){
+		U = this.add.button(x, y, 'U'+escolha_nivel, function(){
 			var frame = this.verificaLetra(U, 'U');
 			U.setFrames(frame);
 
@@ -508,7 +511,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		V = this.add.button(x, y, 'V', function(){
+		V = this.add.button(x, y, 'V'+escolha_nivel, function(){
 			var frame = this.verificaLetra(V, 'V');
 			V.setFrames(frame);
 
@@ -516,7 +519,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		W = this.add.button(x, y, 'W', function(){
+		W = this.add.button(x, y, 'W'+escolha_nivel, function(){
 			var frame = this.verificaLetra(W, 'W');
 			W.setFrames(frame);
 
@@ -524,7 +527,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		X = this.add.button(x, y, 'X', function(){
+		X = this.add.button(x, y, 'X'+escolha_nivel, function(){
 			var frame = this.verificaLetra(X, 'X');
 			X.setFrames(frame);
 
@@ -532,7 +535,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		Y = this.add.button(x, y, 'Y', function(){
+		Y = this.add.button(x, y, 'Y'+escolha_nivel, function(){
 			var frame = this.verificaLetra(Y, 'Y');
 			Y.setFrames(frame);
 
@@ -540,12 +543,13 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		x = x + espacamento;
 
-		Z = this.add.button(x, y, 'Z', function(){
+		Z = this.add.button(x, y, 'Z'+escolha_nivel, function(){
 			var frame = this.verificaLetra(Z, 'Z');
 			Z.setFrames(frame);
 
 		}, this, 2,1,3);
 
 	},
+
 
 };

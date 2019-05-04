@@ -15,5 +15,6 @@ ForcaBRAS.Sobre.prototype = {
 
 	createButton: function(string, x, y, callback){
         var button = this.add.button(x, y, string, callback, this, 1,0,2);
+        button.scale.setTo(0.65,0.65);
     },
 };

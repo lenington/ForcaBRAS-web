@@ -50,7 +50,7 @@ ForcaBRAS.TelaEscolha.prototype = {
                 this.getData(array);
 
             }).catch(() => {
-          
+                
             });
             
             id++; 
@@ -65,29 +65,15 @@ ForcaBRAS.TelaEscolha.prototype = {
         if(!(array===null)){
             palavras.push(array); //adiciona na lista de palavras
         } else {
-            this.state.start('Personagens'); //passa para a escolha de personagens
+            this.state.start('TelaNivel'); //passa para a escolha de personagens
         }
     },
 
 	createButton: function(string, x, y, callback){
         var button = this.add.button(x, y, string, callback, this, 1,0,2);
-    },
-
-    //adapted from: https://www.w3resource.com/javascript-exercises/javascript-array-exercise-17.php
-    sortArray: function(palavras) {
-        var ctr = palavras.length, temp, index;
-        // While there are elements in the array
-        while (ctr > 0) {
-            // Pick a random index
-            index = Math.floor(Math.random() * ctr);
-            // Decrease ctr by 1
-            ctr--;
-            // And swap the last element with it
-            temp = palavras[ctr];
-            palavras[ctr] = palavras[index];
-            palavras[index] = temp;
+        if(string == 'voltar'){
+            button.scale.setTo(0.65,0.65);
         }
-        return palavras;
-    }
+    },
 
 };
