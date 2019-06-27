@@ -1,0 +1,9 @@
+{
+    "name": "ForcaBRAS-web",
+    "version": "0.0.1",
+    "description": "TCC - UEFS",
+    "dependencies": {
+        "express": "^4.17.1",
+        "socket.io": "^2.2.0"
+    }
+}
