@@ -2,6 +2,9 @@
 	
 };
 
+var Client = {};
+Client.socket = io.connect(); //conexão do cliente e servidor da aplicação
+
 var A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z;
 var alfabeto = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T',
 'U','V','W','X','Y','Z'];
@@ -20,8 +23,11 @@ var blocos = []; //blocos da dica
 
 
 ForcaBRAS.TesteSprite.prototype = {
-
+	
 	create: function () {
+		//TESTE LOGIN:
+		Client.socket.emit('join', "Lenington Rios");
+		
 		this.add.image(0, 0, 'Backgroud_Game');
 		//this.add.image(100, 385, 'Teclado');
 		
@@ -72,6 +78,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		sprite_personagem.frame = 0; //frame do personagem inicial
 		sprite_personagem.visible = true;
+		
 	},
 
 	/**
@@ -166,6 +173,8 @@ ForcaBRAS.TesteSprite.prototype = {
 		var condicao; 
 		var palavra_aux = palavra.split(""); //transforma a palavra em array
 		console.log(palavra_aux);
+		
+		Client.socket.emit('click', letra); //envia a letra pro servidor
 
 		for(var i = 0; i<palavra.length; i++){
 			if(letra == this.ignora_acentuacao(palavra_aux[i])){
