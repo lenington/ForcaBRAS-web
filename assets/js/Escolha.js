@@ -65,7 +65,7 @@ ForcaBRAS.TelaEscolha.prototype = {
         if(!(array===null)){
             palavras.push(array); //adiciona na lista de palavras
         } else {
-            this.state.start('TelaNivel'); //passa para a escolha de personagens
+            this.state.start('Modalidade'); //passa para a escolha de personagens
         }
     },
 

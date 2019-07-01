@@ -26,7 +26,9 @@ ForcaBRAS.TesteSprite.prototype = {
 	
 	create: function () {
 		//TESTE LOGIN:
-		Client.socket.emit('join', "Lenington Rios");
+		var sala = localStorage.getItem("sala_nome");
+		var nome = localStorage.getItem("jogador_nome");
+		Client.socket.emit('sala', [sala, nome]);
 		
 		this.add.image(0, 0, 'Backgroud_Game');
 		//this.add.image(100, 385, 'Teclado');

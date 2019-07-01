@@ -20,6 +20,10 @@ ForcaBRAS.Preloader.prototype = {
 		this.load.image('Teclado', 'assets/img/menu_itens/FundoTeclado.png');
 		this.load.image('Perdeu', 'assets/img/menu_itens/perdeu.png');
 		this.load.image('Parabens', 'assets/img/menu_itens/parabens.png');
+		this.load.image('criar_sala', 'assets/img/menu_itens/criar_sala.png');
+		this.load.image('entrar_sala', 'assets/img/menu_itens/entrar_sala.png');
+		this.load.image('escolha_2', 'assets/img/menu_itens/escolha_2.png');
+		this.load.image('multiplayer', 'assets/img/menu_itens/multiplayer.png');
 
 		//BALÕES DICA
 		this.load.spritesheet('ballon_1', 'assets/img/menu_itens/ballon_1.PNG', 11,50); //bloco grande
@@ -35,6 +39,10 @@ ForcaBRAS.Preloader.prototype = {
 		this.load.spritesheet('numerais', 'assets/img/menu_itens/numerais.png', 364,156);
 		this.load.spritesheet('facil', 'assets/img/menu_itens/normal.png', 364,156);
 		this.load.spritesheet('dificil', 'assets/img/menu_itens/dificil.png', 364,156);
+		this.load.spritesheet('1_player', 'assets/img/menu_itens/solo.png', 364,156);
+		this.load.spritesheet('2_players', 'assets/img/menu_itens/1v1.png', 364,156);
+		this.load.spritesheet('entrar', 'assets/img/menu_itens/entrar.png', 364,156);
+		this.load.spritesheet('criar', 'assets/img/menu_itens/criar.png', 364,156);
 
 		//ESCOLHA DE PERSONAGENS:
 		this.load.spritesheet('personagem_1', 'assets/img/menu_itens/personagem_1.PNG', 205,281);
