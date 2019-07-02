@@ -2,7 +2,7 @@ ForcaBRAS.TelaEscolha = function (game) {
 	
 };
 
-function getDataByID(id){
+function getDataByIDPalavras(id){
     return new Promise((resolve, reject) => {
         firebaseRef = firebase.database();
         var array = []; //aray para armazenar a palavra e a dica da mesma
@@ -10,8 +10,29 @@ function getDataByID(id){
         firebaseRef.ref("Palavras/"+id).on('value', function(snap){
             array = snap.val();
 
-            resolve(array);
+            resolve(array); 
+
             return array;
+        }, err => {
+            console.log(err);
+            reject();
+          }
+        );
+    
+    });
+};
+
+function getDataByIDSalas(id){
+    return new Promise((resolve, reject) => {
+        firebaseRef = firebase.database();
+        var array_salas = []; //aray para armazenar a palavra e a dica da mesma
+
+        firebaseRef.ref("Salas/"+id).on('value', function(snap){
+            array_salas = snap.val();
+
+            resolve(array_salas); //console.log(array_salas);
+
+            return array_salas;
         }, err => {
             console.log(err);
             reject();
@@ -29,7 +50,8 @@ ForcaBRAS.TelaEscolha.prototype = {
 		this.createButton('alfabeto', 350, 150, 
         function(){
             escolha_fase = "alfabeto";
-            this.readBD();
+            this.readBDSalas();
+            this.readBDPalavras();
         });
         this.createButton('numerais', 350, 300, 
         function(){
@@ -41,32 +63,52 @@ ForcaBRAS.TelaEscolha.prototype = {
         });
 	},
 
-    readBD: function(){
+    readBDPalavras: function(){
         var id = 0; 
         var condition = true; 
 
         while(condition){
-            getDataByID(id).then((array) => {
-                this.getData(array);
-
+            getDataByIDPalavras(id).then((array) => {
+                this.getDataPalavra(array);
             }).catch(() => {
                 
             });
             
             id++; 
 
-            if(id==146) condition = false;
+            if(id==500) condition = false; //melhorar isso
         }
-        
     },
 
-    getData: function(array){
-        
+    readBDSalas: function(){
+        var id = 0; 
+        var condition = true; 
+
+        while(condition){
+            getDataByIDSalas(id).then((array) => {
+                this.getDataSalas(array);
+            }).catch(() => {
+                
+            });
+            
+            id++; 
+
+            if(id==10) condition = false; //melhorar isso
+        }
+    },
+
+    getDataPalavra: function(array){
         if(!(array===null)){
             palavras.push(array); //adiciona na lista de palavras
         } else {
             this.state.start('Modalidade'); //passa para a escolha de personagens
         }
+    },
+
+    getDataSalas: function(array_salas){
+        if(!(array_salas===null)){
+            salas.push(array_salas); //adiciona na lista de palavras
+        } 
     },
 
 	createButton: function(string, x, y, callback){

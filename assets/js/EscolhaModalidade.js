@@ -9,10 +9,12 @@ ForcaBRAS.Modalidade.prototype = {
 
 		this.createButton('1_player', 260, 380, 
         function(){
+            multiplayer = false;
             this.state.start('TelaNivel'); //passa para a escolha de nível
         });
         this.createButton('2_players', 760, 380, 
         function(){
+            multiplayer = true;
             this.state.start('Multiplayer'); //passa para a escolha de personagens
         });
         this.createButton('voltar', 500, 500, 

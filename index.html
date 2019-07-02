@@ -22,10 +22,11 @@
     <script src="/assets/js/Nivel.js" type="text/javascript"></script>
     <script src="/assets/js/Personagens.js" type="text/javascript"></script>
     <script src="/assets/js/TesteSprite.js" type="text/javascript"></script>
-    <script src="/assets/js/CriarSala.js" type="text/javascript"></script>
+    <script src="/assets/js/EsperarJogador.js" type="text/javascript"></script>
     <script src="/assets/js/EntrarSala.js" type="text/javascript"></script>
     <script src="/assets/js/EscolhaModalidade.js" type="text/javascript"></script>
     <script src="/assets/js/Multiplayer.js" type="text/javascript"></script>
+    <script src="/assets/js/PVP.js" type="text/javascript"></script>
     
     <!-- Firebase App is always required and must be first -->
     <script src="https://www.gstatic.com/firebasejs/5.7.1/firebase-app.js"></script>
@@ -70,10 +71,11 @@
     game.state.add('TelaNivel', ForcaBRAS.TelaNivel);
     game.state.add('Personagens', ForcaBRAS.Personagens);
     game.state.add('TesteSprite', ForcaBRAS.TesteSprite);
-    game.state.add('CriarSala', ForcaBRAS.CriarSala);
+    game.state.add('EsperarJogador', ForcaBRAS.EsperarJogador);
     game.state.add('EntrarSala', ForcaBRAS.EntrarSala);
     game.state.add('Modalidade', ForcaBRAS.Modalidade);
     game.state.add('Multiplayer', ForcaBRAS.Multiplayer);
+    game.state.add('PVP', ForcaBRAS.PVP);
 
     // Initialize Firebase
     var config = {

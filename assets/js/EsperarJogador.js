@@ -1,8 +1,8 @@
-ForcaBRAS.CriarSala = function (game) {
+ForcaBRAS.EsperarJogador = function (game) {
 	
 };
 
-ForcaBRAS.CriarSala.prototype = {
+ForcaBRAS.EsperarJogador.prototype = {
 
 	create: function () {
         this.add.image(0, 0, 'criar_sala');

@@ -1,4 +1,4 @@
-﻿ForcaBRAS.TesteSprite = function (game) {
+ForcaBRAS.PVP = function (game) {
 	
 };
 
@@ -20,31 +20,50 @@ var label_perdeu, label_parabens;
 var play_btn;
 var pontuacao = 0; //pontuação do jogador (10 palavra completa, -2 palavra errada)
 var blocos = []; //blocos da dica
+var sprite_personagem_adversario = [];
+var sala, nome;
 
-
-ForcaBRAS.TesteSprite.prototype = {
+ForcaBRAS.PVP.prototype = {
 	
-	create: function () { console.log(salas);
+	create: function () {
 		//TESTE LOGIN:
-		var sala = localStorage.getItem("sala_nome");
-		var nome = localStorage.getItem("jogador_nome");
-		Client.socket.emit('sala', [sala, nome]);
+		nome = localStorage.getItem("jogador_nome");
+		localStorage.removeItem("jogador_nome");
+		
+		this.pegarSala();
+		this.atualizarSalaPlayer();
+
+
+
+		Client.socket.emit('sala', salas);
+
+		Client.socket.emit(sala, 'Teste apenas');
 		
 		this.add.image(0, 0, 'Backgroud_Game');
-		//this.add.image(100, 385, 'Teclado');
 		
 		label_perdeu = this.add.image(320, 150, 'Perdeu'); 
 		label_perdeu.visible = false;
 		label_parabens = this.add.image(283, 105, 'Parabens'); 
 		label_parabens.visible = false;
 
-        sprite_personagem = this.add.sprite(100, 100, personagem);
+		//aqui vai o nome do personagem e abaixo a pontuação
+		var style = { font: "bold 14px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
+		var player_label = this.add.text(100, 100, nome, style);
+
+        sprite_personagem = this.add.sprite(100, 135, personagem);
 		sprite_personagem.frame = 0;
+		sprite_personagem.scale.setTo(0.90,0.90);
+
+		sprite_personagem_adversario = this.add.sprite(724, 135, personagem);
+		sprite_personagem_adversario.frame = 0;
+		sprite_personagem_adversario.scale.setTo(0.90,0.90);
 		
 		//botões 
-		this.add.button(782, 50, 'voltar_menor', function(){
+		var voltar = this.add.button(850, 10, 'voltar_menor', function(){
             this.state.start('MainMenu');
-        }, this, 1,0,2);
+		}, this, 1,0,2);
+		voltar.scale.setTo(0.75,0.75);
+
 		play_btn = this.add.button(770, 150, 'play_medio', this.jogarNovamente, this, 1,0,2);
 		play_btn.visible = false;
 
@@ -60,6 +79,52 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		this.addBotoesTeclado();
 	},
+
+	pegarSala: function(){
+		firebaseRef = firebase.database(); 
+		//pesquisa no banco de dados firebase...
+        for(i = 0; i < salas.length; i++){
+			if(salas[i].player1 == nome || salas[i].player2 == nome){
+				sala = salas[i].sala; //salva o nome da sala
+			}
+		}
+	},
+
+	atualizarSalaPlayer: function(){
+        firebaseRef = firebase.database(); //console.log(salas);
+		//pesquisa no banco de dados firebase...
+        for(i = 0; i < salas.length; i++){ 
+            if(salas[i].sala == sala){
+				if(salas[i].personagem2 == ""){
+					salas[i].personagem2 = personagem;
+	
+					firebaseRef.ref("Salas/" + i).set({
+						sala: sala,
+						player1: salas[i].player1,
+						nivel: escolha_nivel,
+						personagem1: salas[i].personagem1,
+						personagem2: personagem,
+						player2: salas[i].player1
+					});
+				} else {
+					salas[i].nivel = escolha_nivel;
+					salas[i].personagem1 = personagem;
+	
+					firebaseRef.ref("Salas/" + i).set({
+						sala: sala,
+						player1: salas[i].player1,
+						nivel: escolha_nivel,
+						personagem1: personagem,
+						personagem2: "",
+						player2: ""
+					});
+				}
+
+				//atualiza no banco de dados e no array
+				
+            }
+        }
+    },
 
 	jogarNovamente: function(){ console.log(pontuacao);
 		this.removeBlocosDica();
@@ -104,7 +169,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 	blocosDica: function(tamanho_dica){
 		dica_aux = dica.split(""); //
-		var x = 200, y = 210;
+		var x = 200, y = 230;
 
 		var sprite = this.add.sprite(x, y, 'ballons');
 		sprite.frame = 0;
@@ -131,7 +196,7 @@ ForcaBRAS.TesteSprite.prototype = {
 	createDicaLabel: function(){
 		//texto da dica da palavra atual:
 		var style = { font: "bold 18px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
-		label_dica = this.add.text(250, 233, "", style);
+		label_dica = this.add.text(250, 253, "", style);
 		
 		label_dica.setText(dica);
 	},
