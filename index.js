@@ -18,11 +18,15 @@ app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
 });
 
+server.listen(process.env.PORT || 3000,function(){
+    console.log('Listening on '+server.address().port);
+});
+
 io.on('connection', function(socket){
-    console.log('a user connected');
+    //console.log('a user connected ');
     
     socket.on('disconnect', function(){
-        console.log('user disconnected');
+        //console.log('user disconnected ');
     });
 
     socket.on('sala', function(salas){
@@ -31,9 +35,39 @@ io.on('connection', function(socket){
         console.log(Salas);
     });
 
-    socket.on('Sala 1', function(){
-        console.log("Entrou na Sala 1");
+    socket.on('Sala 1', function(nome){
+        console.log("Entrou");
+        console.log("Entrou na Sala 1: "+nome + " - ID: "+ socket.id);
+
+        socket.on('click',function(letra){
+            console.log('Letra Recebida '+letra);
+
+            io.emit('letra', letra);
+        });
+
+        //socket.on('getPalavras',function(user){
+        //    console.log('Palavras solicitadas: '+user);
+
+        //    io.emit('palavras', user);
+        //});
+
+        //socket.on('sendPalavras',function(palavras){
+        //    console.log("Enviando palavras...");
+        //    io.emit('receivePalavras', palavras); //enviando palavras para o player 2
+        //});
+
+        socket.on('palavras',function(user){
+            console.log(user+" solicitando palavras");
+            io.emit('get_palavras', user); //enviando palavras para o player 2
+        });
+
+        socket.on('send_palavras',function(palavras){
+            console.log("Enviando palavras...");
+            io.emit('receive_palavras', palavras); //enviando palavras para o player 2
+        });
     });
+
+
     socket.on('Sala 2', function(){
         console.log("Entrou na Sala 2");
     });
@@ -62,9 +96,6 @@ io.on('connection', function(socket){
         console.log("Entrou na Sala 10");
     });
 
-    socket.on('click',function(letra){
-        console.log('Letra Recebida '+letra);
-    });
 
     socket.on('pesquisarSala', function(sala){
 
@@ -72,7 +103,3 @@ io.on('connection', function(socket){
 
 });
 
-
-server.listen(process.env.PORT || 3000,function(){
-    console.log('Listening on '+server.address().port);
-});
