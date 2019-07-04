@@ -29,16 +29,29 @@ Client.mensagemSala = function(sala, nome){
 	Client.socket.emit(sala, nome);
 };
 
-//Client.socket.on('palavras',function(user){ //usuário 1 envia palavras pro servidor
-///	if(player_principal){
-//		console.log(user+" solicitando palavras ");
-//		Client.socket.emit('sendPalavras', [palavra, dica]);
-//	}
-//});
-
-Client.socket.on('letra',function(letra){
-    console.log("Letra recebida com sucesso "+letra);
+Client.socket.on('get_letra', async function(user){
+	if(user != nome){ //só executar se for para o adversário
+		console.log("Recebendo letra de "+user);
+		var letra = await Client.getLetra();
+		ForcaBRAS.PVP.prototype.verificaLetraRecebida(letra);
+	}
 });
+
+Client.getLetra = function(){
+	return new Promise((resolve, reject) => {
+		Client.socket.on('receive_letra', function(letra){
+
+			console.log("Letra: "+letra);
+			resolve(letra);
+
+			return letra;
+		}, err => {
+			console.log(err);
+            reject();
+		});
+    
+    });
+};
 
 Client.socket.on('get_palavras',function(user){
 	if(player_principal){
@@ -84,7 +97,7 @@ ForcaBRAS.PVP.prototype = {
 		if(player_principal){//ações somente para o player principal
 			palavras = this.sortArray(palavras); //embaralha a lista de palavras
 			lista_palavras_original = palavras; 
-			//console.log(lista_palavras_original);
+			
 			console.log(palavras);
 
 			this.get_palavra_nova();
@@ -92,7 +105,7 @@ ForcaBRAS.PVP.prototype = {
 
 		} else{ 
 			//palavras = this.sortArray(palavras); //embaralha a lista de palavras
-			await this.get_palavra_nova(); console.log("saiu???");
+			await this.get_palavra_nova(); //console.log("saiu???");
 			this.sprite_letras();
 		}
 
@@ -170,9 +183,9 @@ ForcaBRAS.PVP.prototype = {
         }
     },
 
-	jogarNovamente: function(){ console.log(pontuacao);
+	jogarNovamente: async function(){ console.log(pontuacao);
 		this.removeBlocosDica();
-		this.get_palavra_nova();
+		await this.get_palavra_nova();
 
 		//console.log(array_sprites_palavra);
 		for(var i=0; i<array_sprites_palavra.length; i++){
@@ -255,7 +268,8 @@ ForcaBRAS.PVP.prototype = {
 
 	deleteDicaLabel: function(){
 		//remore a dica atual para iniciar uma nova
-		this.world.remove(label_dica);
+		//this.world.remove(label_dica);
+		label_dica.setText('');
 		this.removeBlocosDica();
 	},
 
@@ -283,20 +297,130 @@ ForcaBRAS.PVP.prototype = {
         return palavras;
 	},
 	
+	verificaLetraRecebida: function(letra){		
+		if(letra == 'A'){
+			var frame = this.verificaLetra(A, letra, false);
+			A.frame = frame;
+		}
+		if(letra == 'B'){
+			var frame = this.verificaLetra(B, letra, false);
+			B.frame = frame;
+		}
+		if(letra == 'C'){
+			var frame = this.verificaLetra(C, letra, false);
+			C.frame = frame;
+		}
+		if(letra == 'D'){
+			var frame = this.verificaLetra(D, letra, false);
+			D.frame = frame;
+		}
+		if(letra == 'E'){
+			var frame = this.verificaLetra(E, letra, false);
+			E.frame = frame;
+		}
+		if(letra == 'F'){
+			var frame = this.verificaLetra(F, letra, false);
+			F.frame = frame;
+		}
+		if(letra == 'G'){
+			var frame = this.verificaLetra(G, letra, false);
+			G.frame = frame;
+		}
+		if(letra == 'H'){
+			var frame = this.verificaLetra(H, letra, false);
+			H.frame = frame;
+		}
+		if(letra == 'I'){
+			var frame = this.verificaLetra(I, letra, false);
+			I.frame = frame;
+		}
+		if(letra == 'J'){
+			var frame = this.verificaLetra(J, letra, false);
+			J.frame = frame;
+		}
+		if(letra == 'K'){
+			var frame = this.verificaLetra(K, letra, false);
+			K.frame = frame;
+		}
+		if(letra == 'L'){
+			var frame = this.verificaLetra(L, letra, false);
+			L.frame = frame;
+		}
+		if(letra == 'M'){
+			var frame = this.verificaLetra(M, letra, false);
+			M.frame = frame;
+		}
+		if(letra == 'N'){
+			var frame = this.verificaLetra(N, letra, false);
+			N.frame = frame;
+		}
+		if(letra == 'O'){
+			var frame = this.verificaLetra(O, letra, false);
+			O.frame = frame;
+		}
+		if(letra == 'P'){
+			var frame = this.verificaLetra(P, letra, false);
+			P.frame = frame;
+		}
+		if(letra == 'Q'){
+			var frame = this.verificaLetra(Q, letra, false);
+			Q.frame = frame;
+		}
+		if(letra == 'R'){
+			var frame = this.verificaLetra(R, letra, false);
+			R.frame = frame;
+		}
+		if(letra == 'S'){
+			var frame = this.verificaLetra(S, letra, false);
+			S.frame = frame;
+		}
+		if(letra == 'T'){
+			var frame = this.verificaLetra(T, letra, false);
+			T.frame = frame;
+		}
+		if(letra == 'U'){
+			var frame = this.verificaLetra(U, letra, false);
+			U.frame = frame;
+		}
+		if(letra == 'V'){
+			var frame = this.verificaLetra(V, letra, false);
+			V.frame = frame;
+		}
+		if(letra == 'W'){
+			var frame = this.verificaLetra(W, letra, false);
+			W.frame = frame;
+		}
+		if(letra == 'X'){
+			var frame = this.verificaLetra(X, letra, false);
+			X.frame = frame;
+		}
+		if(letra == 'Y'){
+			var frame = this.verificaLetra(Y, letra, false);
+			Y.frame = frame;
+		}
+		if(letra == 'Z'){
+			var frame = this.verificaLetra(Z, letra, false);
+			Z.frame = frame;
+		}
+	},
+
 	/**
 	 * Verifica se a letra informada pelo teclado está contida na palavra
 	 * e exibe a quantidade
 	 */
-	verificaLetra: function(botao, letra) {
+	verificaLetra: function(botao, letra, controle) {
 		var frame; //frame para certo (4) ou errado (5)
 		var condicao; 
 		var palavra_aux = palavra.split(""); //transforma a palavra em array
 		console.log(palavra_aux);
 		
-		Client.socket.emit('click', letra); //envia a letra pro servidor
+		if(controle){ //se controle for verdadeiro, significa que veio de quem clicou no botão
+			Client.socket.emit('click', nome); //envia a letra pro servidor
+			Client.socket.emit('send_letra', letra); //envia a letra pro servidor
+		} //serve para não entrar em um loop infinito entre servidor-cliente
 
-		for(var i = 0; i<palavra.length; i++){
-			if(letra == this.ignora_acentuacao(palavra_aux[i])){
+		for(var i = 0; i<palavra.length; i++){ 
+			if(letra == this.ignora_acentuacao(palavra_aux[i])){ 
 				this.revela_letras(palavra_aux[i].toLowerCase(), i);
 
 				condicao = true; //basta entrar uma vez para a condição ser verdadeira
@@ -317,9 +441,9 @@ ForcaBRAS.PVP.prototype = {
 		}
 
 		botao.inputEnabled = false; //desabilita o botão
-		if(condicao){
+		if(condicao){ 
 			frame = 4; //certo 
-		} else {
+		} else { 
 			frame = 5; //errado 
 			this.removeParteDoCorpo();
 		}
@@ -474,7 +598,7 @@ ForcaBRAS.PVP.prototype = {
 		var x = 96; var y = 435; var espacamento = 64;
 
 		A = this.add.button(x, y, 'A'+escolha_nivel, function(){
-			var frame = this.verificaLetra(A, 'A');
+			var frame = this.verificaLetra(A, 'A', true);
 			A.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -482,7 +606,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		B = this.add.button(x, y, 'B'+escolha_nivel, function(){
-			var frame = this.verificaLetra(B, 'B');
+			var frame = this.verificaLetra(B, 'B', true);
 			B.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -490,7 +614,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		C = this.add.button(x, y, 'C'+escolha_nivel, function(){
-			var frame = this.verificaLetra(C, 'C');
+			var frame = this.verificaLetra(C, 'C', true);
 			C.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -498,7 +622,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		D = this.add.button(x, y, 'D'+escolha_nivel, function(){
-			var frame = this.verificaLetra(D, 'D');
+			var frame = this.verificaLetra(D, 'D', true);
 			D.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -506,7 +630,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		E = this.add.button(x, y, 'E'+escolha_nivel, function(){
-			var frame = this.verificaLetra(E, 'E');
+			var frame = this.verificaLetra(E, 'E', true);
 			E.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -514,7 +638,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		F = this.add.button(x, y, 'F'+escolha_nivel, function(){
-			var frame = this.verificaLetra(F, 'F');
+			var frame = this.verificaLetra(F, 'F', true);
 			F.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -522,7 +646,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		G = this.add.button(x, y, 'G'+escolha_nivel, function(){
-			var frame = this.verificaLetra(G, 'G');
+			var frame = this.verificaLetra(G, 'G', true);
 			G.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -530,7 +654,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		H = this.add.button(x, y, 'H'+escolha_nivel, function(){
-			var frame = this.verificaLetra(H, 'H');
+			var frame = this.verificaLetra(H, 'H', true);
 			H.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -538,7 +662,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		I = this.add.button(x, y, 'I'+escolha_nivel, function(){
-			var frame = this.verificaLetra(I, 'I');
+			var frame = this.verificaLetra(I, 'I', true);
 			I.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -546,7 +670,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		J = this.add.button(x, y, 'J'+escolha_nivel, function(){
-			var frame = this.verificaLetra(J, 'J');
+			var frame = this.verificaLetra(J, 'J', true);
 			J.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -554,7 +678,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		K = this.add.button(x, y, 'K'+escolha_nivel, function(){
-			var frame = this.verificaLetra(K, 'K');
+			var frame = this.verificaLetra(K, 'K', true);
 			K.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -562,7 +686,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		L = this.add.button(x, y, 'L'+escolha_nivel, function(){
-			var frame = this.verificaLetra(L, 'L');
+			var frame = this.verificaLetra(L, 'L', true);
 			L.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -570,7 +694,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		M = this.add.button(x, y, 'M'+escolha_nivel, function(){
-			var frame = this.verificaLetra(M, 'M');
+			var frame = this.verificaLetra(M, 'M', true);
 			M.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -579,7 +703,7 @@ ForcaBRAS.PVP.prototype = {
 		y = y + espacamento; x = 96;
 
 		N = this.add.button(x, y, 'N'+escolha_nivel, function(){
-			var frame = this.verificaLetra(N, 'N');
+			var frame = this.verificaLetra(N, 'N', true);
 			N.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -588,7 +712,7 @@ ForcaBRAS.PVP.prototype = {
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		O = this.add.button(x, y, 'O'+escolha_nivel, function(){
-			var frame = this.verificaLetra(O, 'O');
+			var frame = this.verificaLetra(O, 'O', true);
 			O.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -596,7 +720,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		P = this.add.button(x, y, 'P'+escolha_nivel, function(){
-			var frame = this.verificaLetra(P, 'P');
+			var frame = this.verificaLetra(P, 'P', true);
 			P.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -604,7 +728,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		Q = this.add.button(x, y, 'Q'+escolha_nivel, function(){
-			var frame = this.verificaLetra(Q, 'Q');
+			var frame = this.verificaLetra(Q, 'Q', true);
 			Q.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -612,7 +736,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		R = this.add.button(x, y, 'R'+escolha_nivel, function(){
-			var frame = this.verificaLetra(R, 'R');
+			var frame = this.verificaLetra(R, 'R', true);
 			R.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -620,7 +744,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		S = this.add.button(x, y, 'S'+escolha_nivel, function(){
-			var frame = this.verificaLetra(S, 'S');
+			var frame = this.verificaLetra(S, 'S', true);
 			S.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -628,7 +752,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		T = this.add.button(x, y, 'T'+escolha_nivel, function(){
-			var frame = this.verificaLetra(T, 'T');
+			var frame = this.verificaLetra(T, 'T', true);
 			T.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -636,7 +760,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		U = this.add.button(x, y, 'U'+escolha_nivel, function(){
-			var frame = this.verificaLetra(U, 'U');
+			var frame = this.verificaLetra(U, 'U', true);
 			U.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -644,7 +768,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		V = this.add.button(x, y, 'V'+escolha_nivel, function(){
-			var frame = this.verificaLetra(V, 'V');
+			var frame = this.verificaLetra(V, 'V', true);
 			V.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -652,7 +776,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		W = this.add.button(x, y, 'W'+escolha_nivel, function(){
-			var frame = this.verificaLetra(W, 'W');
+			var frame = this.verificaLetra(W, 'W', true);
 			W.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -660,7 +784,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		X = this.add.button(x, y, 'X'+escolha_nivel, function(){
-			var frame = this.verificaLetra(X, 'X');
+			var frame = this.verificaLetra(X, 'X', true);
 			X.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -668,7 +792,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		Y = this.add.button(x, y, 'Y'+escolha_nivel, function(){
-			var frame = this.verificaLetra(Y, 'Y');
+			var frame = this.verificaLetra(Y, 'Y', true);
 			Y.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -676,7 +800,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		Z = this.add.button(x, y, 'Z'+escolha_nivel, function(){
-			var frame = this.verificaLetra(Z, 'Z');
+			var frame = this.verificaLetra(Z, 'Z', true);
 			Z.setFrames(frame);
 
 		}, this, 2,1,3);

@@ -39,26 +39,20 @@ io.on('connection', function(socket){
         console.log("Entrou");
         console.log("Entrou na Sala 1: "+nome + " - ID: "+ socket.id);
 
-        socket.on('click',function(letra){
-            console.log('Letra Recebida '+letra);
+        socket.on('click',function(user){
+            console.log('Letra sendo enviada por '+user);
 
-            io.emit('letra', letra);
+            io.emit('get_letra', user);
         });
 
-        //socket.on('getPalavras',function(user){
-        //    console.log('Palavras solicitadas: '+user);
-
-        //    io.emit('palavras', user);
-        //});
-
-        //socket.on('sendPalavras',function(palavras){
-        //    console.log("Enviando palavras...");
-        //    io.emit('receivePalavras', palavras); //enviando palavras para o player 2
-        //});
+        socket.on('send_letra',function(letra){
+            console.log("Letra recebida: "+letra);
+            io.emit('receive_letra', letra);
+        });
 
         socket.on('palavras',function(user){
             console.log(user+" solicitando palavras");
-            io.emit('get_palavras', user); //enviando palavras para o player 2
+            io.emit('get_palavras', user); 
         });
 
         socket.on('send_palavras',function(palavras){
