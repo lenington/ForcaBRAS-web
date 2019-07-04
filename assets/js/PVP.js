@@ -18,15 +18,54 @@ var play_btn;
 var pontuacao = 0; //pontuação do jogador (10 palavra completa, -2 palavra errada)
 var blocos = []; //blocos da dica
 var sprite_personagem_adversario = [];
-var sala, nome;
+var sala, nome, nome_adversario, personagem_adversario;
 var player_principal = false;
-var lista_palavras_original;
+//var lista_palavras_original;
 
 var Client = {};
 Client.socket = io.connect(); //conexão do cliente e servidor da aplicação
 
 Client.mensagemSala = function(sala, nome){
 	Client.socket.emit(sala, nome);
+	if(!player_principal){
+		Client.socket.emit('atualizar_sala', nome);
+	}
+};
+
+Client.socket.on('sala_atualizada', async function(user){
+	if(player_principal){ //somente se for o player principal/inicial
+		for(i = 0; i<10; i++){
+			var sala_bd = await getSalaAtualizada(i);
+			console.log(sala_bd.sala);
+			if(sala_bd.sala == sala){ 
+				personagem_adversario = sala_bd.personagem2;
+				nome_adversario = sala_bd.player2;
+				
+				ForcaBRAS.PVP.prototype.iniciarPersonagem(personagem_adversario, nome_adversario);
+			}
+		}
+	}
+		
+});
+
+async function getSalaAtualizada(id){
+    return new Promise((resolve, reject) => {
+        firebaseRef = firebase.database();
+        var sala; //aray para armazenar a palavra e a dica da mesma
+
+        firebaseRef.ref("Salas/"+id).on('value', function(snap){
+            sala = snap.val();
+
+            resolve(sala); 
+
+            return sala;
+        }, err => {
+            console.log(err);
+            reject();
+          }
+        );
+    
+    });
 };
 
 Client.socket.on('get_letra', async function(user){
@@ -96,7 +135,7 @@ ForcaBRAS.PVP.prototype = {
 
 		if(player_principal){//ações somente para o player principal
 			palavras = this.sortArray(palavras); //embaralha a lista de palavras
-			lista_palavras_original = palavras; 
+			//lista_palavras_original = palavras; 
 			
 			console.log(palavras);
 
@@ -113,13 +152,7 @@ ForcaBRAS.PVP.prototype = {
 		var style = { font: "bold 14px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
 		var player_label = this.add.text(100, 100, nome, style);
 
-        sprite_personagem = this.add.sprite(100, 135, personagem);
-		sprite_personagem.frame = 0;
-		sprite_personagem.scale.setTo(0.90,0.90);
-
-		sprite_personagem_adversario = this.add.sprite(724, 135, personagem);
-		sprite_personagem_adversario.frame = 0;
-		sprite_personagem_adversario.scale.setTo(0.90,0.90);
+		//this.iniciarPersonagem();
 		
 		//botões 
 		var voltar = this.add.button(850, 10, 'voltar_menor', function(){
@@ -131,6 +164,17 @@ ForcaBRAS.PVP.prototype = {
 		play_btn.visible = false;
 
 		this.addBotoesTeclado();
+	},
+
+	iniciarPersonagem: function(personagem_adversario, nome_adversario){
+        sprite_personagem = this.add.sprite(100, 135, personagem);
+		sprite_personagem.frame = 0;
+		sprite_personagem.scale.setTo(0.90,0.90);
+
+		sprite_personagem_adversario = this.add.sprite(724, 135, personagem_adversario);
+		sprite_personagem_adversario.frame = 0;
+		sprite_personagem_adversario.scale.setTo(0.90,0.90);
+
 	},
 
 	pegarSala: function(){
@@ -159,7 +203,8 @@ ForcaBRAS.PVP.prototype = {
 						personagem2: personagem,
 						player2: salas[i].player2
 					});
-
+					
+					this.iniciarPersonagem(salas[i].personagem1, salas[i].player1);
 					Client.mensagemSala(sala, salas[i].player2);
 				} else {
 					player_principal = true; //é o player principal
@@ -174,11 +219,10 @@ ForcaBRAS.PVP.prototype = {
 						personagem2: "",
 						player2: ""
 					});
+					
 					Client.mensagemSala(sala, salas[i].player1);
 				}
 
-				//atualiza no banco de dados e no array
-				
             }
         }
     },

@@ -36,9 +36,15 @@ io.on('connection', function(socket){
     });
 
     socket.on('Sala 1', function(nome){
-        console.log("Entrou");
         console.log("Entrou na Sala 1: "+nome + " - ID: "+ socket.id);
 
+        //-->ATUALIZA SALA PARA O PLAYER 1:
+        socket.on('atualizar_sala', function(user){
+            io.emit('sala_atualizada', user);
+        });
+        //SALA PARA PLAYER 1<--
+
+        //-->TRABALHANDO COM BOTÕES/LETRAS:
         socket.on('click',function(user){
             console.log('Letra sendo enviada por '+user);
 
@@ -49,7 +55,9 @@ io.on('connection', function(socket){
             console.log("Letra recebida: "+letra);
             io.emit('receive_letra', letra);
         });
+        //BOTÕES/LETRAS<--
 
+        //-->TRABALHANDO COM PALAVRAS:
         socket.on('palavras',function(user){
             console.log(user+" solicitando palavras");
             io.emit('get_palavras', user); 
@@ -59,6 +67,7 @@ io.on('connection', function(socket){
             console.log("Enviando palavras...");
             io.emit('receive_palavras', palavras); //enviando palavras para o player 2
         });
+        //PALAVRAS<--
     });
 
 
