@@ -1,5 +1,4 @@
 ForcaBRAS.PVP = function (game) {
-	
 };
 
 var A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z;
@@ -20,28 +19,32 @@ var blocos = []; //blocos da dica
 var sprite_personagem_adversario = [];
 var sala, nome, nome_adversario, personagem_adversario;
 var player_principal = false;
+var player_label, player_label_adversario, ponto_label, ponto_label_adversario;
+var bloquear;
+var minha_vez;
+var letras_clicadas = []; //listra de letras que ja foram clicadas
 //var lista_palavras_original;
 
 var Client = {};
 Client.socket = io.connect(); //conexão do cliente e servidor da aplicação
 
-Client.mensagemSala = function(sala, nome){
+Client.mensagemSala = function(sala, nome, personagem_adv){
 	Client.socket.emit(sala, nome);
 	if(!player_principal){
-		Client.socket.emit('atualizar_sala', nome);
+		Client.socket.emit('atualizar_sala', personagem_adv);
 	}
 };
 
-Client.socket.on('sala_atualizada', async function(user){
+Client.socket.on('sala_atualizada', async function(personagem_adv){
 	if(player_principal){ //somente se for o player principal/inicial
 		for(i = 0; i<10; i++){
 			var sala_bd = await getSalaAtualizada(i);
-			console.log(sala_bd.sala);
+			
 			if(sala_bd.sala == sala){ 
-				personagem_adversario = sala_bd.personagem2;
-				nome_adversario = sala_bd.player2;
-				
-				ForcaBRAS.PVP.prototype.iniciarPersonagem(personagem_adversario, nome_adversario);
+				personagem_adversario = await personagem_adv;
+				nome_adversario = await sala_bd.player2;
+
+				ForcaBRAS.PVP.prototype.iniciaPersonagemAdversario();
 			}
 		}
 	}
@@ -119,7 +122,6 @@ Client.getPalavra = function(){
 ForcaBRAS.PVP.prototype = {
 	
 	create: async function () {
-		//TESTE LOGIN:
 		nome = localStorage.getItem("jogador_nome");
 		localStorage.removeItem("jogador_nome");
 
@@ -132,27 +134,38 @@ ForcaBRAS.PVP.prototype = {
 		label_perdeu.visible = false;
 		label_parabens = this.add.image(283, 105, 'Parabens'); 
 		label_parabens.visible = false;
+		
+		var style = { font: "bold 16px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
 
 		if(player_principal){//ações somente para o player principal
 			palavras = this.sortArray(palavras); //embaralha a lista de palavras
-			//lista_palavras_original = palavras; 
-			
-			console.log(palavras);
 
 			this.get_palavra_nova();
 			this.sprite_letras();
 
+			ponto_label = this.add.text(100, 120, 'Pontos: 30', style);
+			ponto_label_adversario = this.add.text(724, 120, 'Pontos: 60', style); 
+
+			minha_vez = true; //vez de jogar
 		} else{ 
-			//palavras = this.sortArray(palavras); //embaralha a lista de palavras
-			await this.get_palavra_nova(); //console.log("saiu???");
+			await this.get_palavra_nova(); 
 			this.sprite_letras();
+
+			ponto_label = this.add.text(100, 120, 'Pontos: 60', style);
+			ponto_label_adversario = this.add.text(724, 120, 'Pontos: 30', style); 
 		}
 
 		//aqui vai o nome do personagem e abaixo a pontuação
-		var style = { font: "bold 14px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
-		var player_label = this.add.text(100, 100, nome, style);
+		player_label = this.add.text(100, 100, nome, style);
+		player_label_adversario = this.add.text(724, 100, nome_adversario, style); 
 
-		//this.iniciarPersonagem();
+		sprite_personagem = this.add.sprite(100, 135, personagem);
+		sprite_personagem.frame = 0;
+		sprite_personagem.scale.setTo(0.90,0.90);
+		
+		sprite_personagem_adversario = this.add.sprite(724, 135, personagem_adversario);
+		sprite_personagem_adversario.frame = 0;
+		sprite_personagem_adversario.scale.setTo(0.90,0.90);
 		
 		//botões 
 		var voltar = this.add.button(850, 10, 'voltar_menor', function(){
@@ -164,17 +177,7 @@ ForcaBRAS.PVP.prototype = {
 		play_btn.visible = false;
 
 		this.addBotoesTeclado();
-	},
-
-	iniciarPersonagem: function(personagem_adversario, nome_adversario){
-        sprite_personagem = this.add.sprite(100, 135, personagem);
-		sprite_personagem.frame = 0;
-		sprite_personagem.scale.setTo(0.90,0.90);
-
-		sprite_personagem_adversario = this.add.sprite(724, 135, personagem_adversario);
-		sprite_personagem_adversario.frame = 0;
-		sprite_personagem_adversario.scale.setTo(0.90,0.90);
-
+		this.on_off_botoes(false); //desabilita botões no inicio da partida
 	},
 
 	pegarSala: function(){
@@ -194,6 +197,8 @@ ForcaBRAS.PVP.prototype = {
             if(salas[i].sala == sala){
 				if(nome != salas[i].player1){
 					salas[i].personagem2 = personagem;
+					personagem_adversario = salas[i].personagem1;
+					nome_adversario = salas[i].player1;
 	
 					firebaseRef.ref("Salas/" + i).set({
 						sala: sala,
@@ -203,9 +208,8 @@ ForcaBRAS.PVP.prototype = {
 						personagem2: personagem,
 						player2: salas[i].player2
 					});
-					
-					this.iniciarPersonagem(salas[i].personagem1, salas[i].player1);
-					Client.mensagemSala(sala, salas[i].player2);
+
+					Client.mensagemSala(sala, salas[i].player2, personagem);
 				} else {
 					player_principal = true; //é o player principal
 					salas[i].nivel = escolha_nivel;
@@ -220,12 +224,19 @@ ForcaBRAS.PVP.prototype = {
 						player2: ""
 					});
 					
-					Client.mensagemSala(sala, salas[i].player1);
+					Client.mensagemSala(sala, salas[i].player1, '');
 				}
 
             }
         }
-    },
+	},
+	
+	iniciaPersonagemAdversario: function(){
+		player_label_adversario.setText(nome_adversario);
+
+		sprite_personagem_adversario.loadTexture(personagem_adversario);
+		this.on_off_botoes(true); //habilita botões para o player principal
+	},
 
 	jogarNovamente: async function(){ console.log(pontuacao);
 		this.removeBlocosDica();
@@ -238,7 +249,7 @@ ForcaBRAS.PVP.prototype = {
 		} array_sprites_palavra = []; //reinicia o aray
 
 		this.sprite_letras();
-		this.on_Off_Botoes(true);
+		this.restarta_Botoes(true);
 
 		label_parabens.visible = false;
 		label_perdeu.visible = false;
@@ -272,8 +283,6 @@ ForcaBRAS.PVP.prototype = {
 		} else{
 			//FIM DE JOGO! FIM DE JOGO!  DE JOGO! FIM DE JOGO! FIM DE JOGO!
 		}
-		console.log(palavra);
-		console.log(dica);
 	},
 
 	blocosDica: function(tamanho_dica){
@@ -456,12 +465,13 @@ ForcaBRAS.PVP.prototype = {
 		var frame; //frame para certo (4) ou errado (5)
 		var condicao; 
 		var palavra_aux = palavra.split(""); //transforma a palavra em array
-		console.log(palavra_aux);
 		
 		if(controle){ //se controle for verdadeiro, significa que veio de quem clicou no botão
 			Client.socket.emit('click', nome); //envia a letra pro servidor
 			Client.socket.emit('send_letra', letra); //envia a letra pro servidor
 		} //serve para não entrar em um loop infinito entre servidor-cliente
+
+		letras_clicadas.push(letra);
 
 		for(var i = 0; i<palavra.length; i++){ 
 			if(letra == this.ignora_acentuacao(palavra_aux[i])){ 
@@ -473,7 +483,7 @@ ForcaBRAS.PVP.prototype = {
 
 				if(tamanho_palavra_aux == 0){ //concluiu a palavra
 					label_parabens.visible = true; 
-					this.on_Off_Botoes(false); //desabilita os botões
+					this.restarta_Botoes(false); //desabilita os botões
 					pontuacao = pontuacao + 10; //ATUALIZA A PONTUAÇÃO
 					play_btn.visible = true;
 					this.deleteDicaLabel(); //deleta o label da dica iniciar um novo
@@ -490,6 +500,13 @@ ForcaBRAS.PVP.prototype = {
 		} else { 
 			frame = 5; //errado 
 			this.removeParteDoCorpo();
+			if(minha_vez){ //se for a vez do player, desabilita botões e passa para o outro
+				this.liberar_botoes(); 
+				minha_vez = false; //perdeu a vez
+			} else{
+				this.liberar_botoes(); 
+				minha_vez = true; //ganhou a vez
+			}
 		}
 
 		return frame;
@@ -500,17 +517,32 @@ ForcaBRAS.PVP.prototype = {
 	 * 
 	 */
 	removeParteDoCorpo: function(){
-		if(sprite_personagem.frame != 6){
-			sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
-		} else { //CONDIÇÃO DE PERDER!
-			pontuacao = pontuacao -2;
-			sprite_personagem.visible = false;
-			label_perdeu.visible = true;
-			this.on_Off_Botoes(false); //desabilita os botões
-			this.mostrarPalavraCompleta(); //mostra a palavra completa
-			this.deleteDicaLabel(); //deleta o label da dica iniciar um novo
-			play_btn.visible = true;
+		if(minha_vez){ //se for a vez do personagem
+			if(sprite_personagem.frame != 6){
+				sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+			} else { //CONDIÇÃO DE PERDER!
+				pontuacao = pontuacao -2;
+				sprite_personagem.visible = false;
+				label_perdeu.visible = true;
+				this.restarta_Botoes(false); //desabilita os botões
+				this.mostrarPalavraCompleta(); //mostra a palavra completa
+				this.deleteDicaLabel(); //deleta o label da dica iniciar um novo
+				play_btn.visible = true;
+			}
+		} else{
+			if(sprite_personagem_adversario.frame != 6){
+				sprite_personagem_adversario.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+			} else { //CONDIÇÃO DE PERDER!
+				pontuacao = pontuacao -2;
+				sprite_personagem_adversario.visible = false;
+				label_perdeu.visible = true;
+				this.restarta_Botoes(false); //desabilita os botões
+				this.mostrarPalavraCompleta(); //mostra a palavra completa
+				this.deleteDicaLabel(); //deleta o label da dica iniciar um novo
+				play_btn.visible = true;
+			}
 		}
+		
 	},
 
 	mostrarPalavraCompleta: function(){
@@ -556,7 +588,7 @@ ForcaBRAS.PVP.prototype = {
 	 * Função para colocar os sprites das letras da palavra centralizadas
 	 * 
 	 */
-	sprite_letras: function() { console.log("entrou???");
+	sprite_letras: function() { 
 		var n = palavra.length; //tamanho da palavra
 		var deslocamento = (64)/2; 
 		var x = 512 - (n)*deslocamento;
@@ -564,7 +596,7 @@ ForcaBRAS.PVP.prototype = {
 
 		//verifica cada letra e guarda no array 
 		for(var i=0; i<n; i++){
-			var letra = palavra_aux[i].toLowerCase(); console.log(letra);
+			var letra = palavra_aux[i].toLowerCase(); 
 			var sprite = this.add.sprite(x, 340, letra);
 			array_sprites_palavra[i] = sprite;
 			sprite.frame = 0;
@@ -572,11 +604,74 @@ ForcaBRAS.PVP.prototype = {
 		}
 	},
 
-	receive_button: function(){
-
+	buscarBotoesPressionados: function(letra){
+		for(i = 0; i < letras_clicadas.length; i++){
+			if(letra == letras_clicadas[i]){ console.log(letra);
+				return false; 
+			} else return true;
+		}
 	},
 
-	on_Off_Botoes: function(condicao){
+	liberar_botoes: function(){
+		//só hailita o que não estiver na lista de botões pressionados
+		A.inputEnabled = this.buscarBotoesPressionados('A'); 
+		B.inputEnabled = this.buscarBotoesPressionados('B'); 
+		C.inputEnabled = this.buscarBotoesPressionados('C'); 
+		D.inputEnabled = this.buscarBotoesPressionados('D'); 
+		E.inputEnabled = this.buscarBotoesPressionados('E'); 
+		F.inputEnabled = this.buscarBotoesPressionados('F'); 
+		G.inputEnabled = this.buscarBotoesPressionados('G'); 
+		H.inputEnabled = this.buscarBotoesPressionados('H'); 
+		I.inputEnabled = this.buscarBotoesPressionados('I'); 
+		J.inputEnabled = this.buscarBotoesPressionados('J'); 
+		K.inputEnabled = this.buscarBotoesPressionados('K'); 
+		L.inputEnabled = this.buscarBotoesPressionados('L'); 
+		M.inputEnabled = this.buscarBotoesPressionados('M'); 
+		N.inputEnabled = this.buscarBotoesPressionados('N'); 
+		O.inputEnabled = this.buscarBotoesPressionados('O'); 
+		P.inputEnabled = this.buscarBotoesPressionados('P'); 
+		Q.inputEnabled = this.buscarBotoesPressionados('Q'); 
+		R.inputEnabled = this.buscarBotoesPressionados('R'); 
+		S.inputEnabled = this.buscarBotoesPressionados('S'); 
+		T.inputEnabled = this.buscarBotoesPressionados('T'); 
+		U.inputEnabled = this.buscarBotoesPressionados('U'); 
+		V.inputEnabled = this.buscarBotoesPressionados('V'); 
+		W.inputEnabled = this.buscarBotoesPressionados('W'); 
+		X.inputEnabled = this.buscarBotoesPressionados('X'); 
+		Y.inputEnabled = this.buscarBotoesPressionados('Y'); 
+		Z.inputEnabled = this.buscarBotoesPressionados('Z'); 
+	},
+
+	on_off_botoes: function(condicao){
+		A.inputEnabled = condicao; 
+		B.inputEnabled = condicao; 
+		C.inputEnabled = condicao; 
+		D.inputEnabled = condicao; 
+		E.inputEnabled = condicao; 
+		F.inputEnabled = condicao; 
+		G.inputEnabled = condicao; 
+		H.inputEnabled = condicao; 
+		I.inputEnabled = condicao; 
+		J.inputEnabled = condicao; 
+		K.inputEnabled = condicao; 
+		L.inputEnabled = condicao; 
+		M.inputEnabled = condicao; 
+		N.inputEnabled = condicao; 
+		O.inputEnabled = condicao; 
+		P.inputEnabled = condicao; 
+		Q.inputEnabled = condicao; 
+		R.inputEnabled = condicao; 
+		S.inputEnabled = condicao; 
+		T.inputEnabled = condicao; 
+		U.inputEnabled = condicao; 
+		V.inputEnabled = condicao; 
+		W.inputEnabled = condicao; 
+		X.inputEnabled = condicao; 
+		Y.inputEnabled = condicao; 
+		Z.inputEnabled = condicao; 
+	},
+
+	restarta_Botoes: function(condicao){
 		A.inputEnabled = condicao; 
 		B.inputEnabled = condicao; 
 		C.inputEnabled = condicao; 
