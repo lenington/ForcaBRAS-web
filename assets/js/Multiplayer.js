@@ -18,9 +18,9 @@ ForcaBRAS.Multiplayer.prototype = {
             if(nome == null || nome == ""){
                 this.state.start('Multiplayer'); //retorna para a scene
             } else {
-                var tela = this.pegarSala(nome);
+                //var tela = this.pegarSala(nome);
                 this.readBD();
-                this.state.start(tela); //passa para a escolha de nível ou personagem
+                this.state.start("TelaNivel"); //passa para a escolha de nível ou personagem
             }
         });
 

@@ -23,7 +23,6 @@ var player_label, player_label_adversario, ponto_label, ponto_label_adversario;
 var bloquear;
 var minha_vez;
 var letras_clicadas = []; //listra de letras que ja foram clicadas
-//var lista_palavras_original;
 
 var Client = {};
 Client.socket = io.connect(); //conexão do cliente e servidor da aplicação
@@ -75,7 +74,11 @@ Client.socket.on('get_letra', async function(user){
 	if(user != nome){ //só executar se for para o adversário
 		console.log("Recebendo letra de "+user);
 		var letra = await Client.getLetra();
-		ForcaBRAS.PVP.prototype.verificaLetraRecebida(letra);
+
+		await letras_clicadas.push(letra); console.log(letras_clicadas); 
+
+		verificaLetraRecebida(letra);
+		
 	}
 });
 
@@ -119,8 +122,456 @@ Client.getPalavra = function(){
     });
 };
 
-ForcaBRAS.PVP.prototype = {
+
+/**
+ * Verifica se a letra informada pelo teclado está contida na palavra
+ * e exibe a quantidade
+ */
+function verificaLetra(botao, letra, controle) {
+	var frame; //frame para certo (4) ou errado (5)
+	var condicao; 
+	var palavra_aux = palavra.split(""); //transforma a palavra em array
 	
+	if(controle){ //se controle for verdadeiro, significa que veio de quem clicou no botão
+		Client.socket.emit('click', nome); //envia a letra pro servidor
+		Client.socket.emit('send_letra', letra); //envia a letra pro servidor
+		letras_clicadas.push(letra); //console.log(letras_clicadas); 
+	} //serve para não entrar em um loop infinito entre servidor-cliente
+
+	//desabilita_botoes_lista();
+
+	for(var i = 0; i<palavra.length; i++){ 
+		if(letra == ignora_acentuacao(palavra_aux[i])){ 
+			revela_letras(palavra_aux[i].toLowerCase(), i);
+
+			condicao = true; //basta entrar uma vez para a condição ser verdadeira
+			
+			tamanho_palavra_aux--; //decrementa 
+
+			if(tamanho_palavra_aux == 0){ //concluiu a palavra
+				label_parabens.visible = true; 
+				restarta_Botoes(false); //desabilita os botões
+				pontuacao = pontuacao + 10; //ATUALIZA A PONTUAÇÃO
+				play_btn.visible = true;
+				deleteDicaLabel(); //deleta o label da dica iniciar um novo
+
+				sprite_personagem.frame = 0; //frame do personagem inicial
+				sprite_personagem.visible = true;
+			}
+		} 
+	}
+
+	botao.inputEnabled = false; //desabilita o botão
+	if(condicao){ 
+		frame = 4; //certo 
+	} else { 
+		frame = 5; //errado 
+		removeParteDoCorpo();
+		if(minha_vez){ //se for a vez do player, desabilita botões e passa para o outro
+			on_off_botoes(false);
+			minha_vez = false; //perdeu a vez
+		} else{
+			liberar_botoes(); 
+			minha_vez = true; //ganhou a vez
+		}
+	}
+
+	return frame;
+};
+
+/**
+ * 
+ * 
+ */
+function buscarBotoesPressionados(letra){ 
+	for(i = 0; i < letras_clicadas.length; i++){ 
+		if(letra == letras_clicadas[i]){ 
+			return false; 
+		} 
+	} return true; 
+};
+
+/**
+ * 
+ * 
+ */
+function liberar_botoes(){
+	A.inputEnabled = buscarBotoesPressionados('A'); 
+	B.inputEnabled = buscarBotoesPressionados('B'); 
+	C.inputEnabled = buscarBotoesPressionados('C'); 
+	D.inputEnabled = buscarBotoesPressionados('D'); 
+	E.inputEnabled = buscarBotoesPressionados('E'); 
+	F.inputEnabled = buscarBotoesPressionados('F'); 
+	G.inputEnabled = buscarBotoesPressionados('G'); 
+	H.inputEnabled = buscarBotoesPressionados('H'); 
+	I.inputEnabled = buscarBotoesPressionados('I'); 
+	J.inputEnabled = buscarBotoesPressionados('J'); 
+	K.inputEnabled = buscarBotoesPressionados('K'); 
+	L.inputEnabled = buscarBotoesPressionados('L'); 
+	M.inputEnabled = buscarBotoesPressionados('M'); 
+	N.inputEnabled = buscarBotoesPressionados('N'); 
+	O.inputEnabled = buscarBotoesPressionados('O'); 
+	P.inputEnabled = buscarBotoesPressionados('P'); 
+	Q.inputEnabled = buscarBotoesPressionados('Q'); 
+	R.inputEnabled = buscarBotoesPressionados('R'); 
+	S.inputEnabled = buscarBotoesPressionados('S'); 
+	T.inputEnabled = buscarBotoesPressionados('T'); 
+	U.inputEnabled = buscarBotoesPressionados('U'); 
+	V.inputEnabled = buscarBotoesPressionados('V'); 
+	W.inputEnabled = buscarBotoesPressionados('W'); 
+	X.inputEnabled = buscarBotoesPressionados('X'); 
+	Y.inputEnabled = buscarBotoesPressionados('Y'); 
+	Z.inputEnabled = buscarBotoesPressionados('Z'); 
+};
+
+/**
+ * 
+ * 
+ */
+function on_off_botoes(condicao){
+	A.inputEnabled = condicao; 
+	B.inputEnabled = condicao; 
+	C.inputEnabled = condicao; 
+	D.inputEnabled = condicao; 
+	E.inputEnabled = condicao; 
+	F.inputEnabled = condicao; 
+	G.inputEnabled = condicao; 
+	H.inputEnabled = condicao; 
+	I.inputEnabled = condicao; 
+	J.inputEnabled = condicao; 
+	K.inputEnabled = condicao; 
+	L.inputEnabled = condicao; 
+	M.inputEnabled = condicao; 
+	N.inputEnabled = condicao; 
+	O.inputEnabled = condicao; 
+	P.inputEnabled = condicao; 
+	Q.inputEnabled = condicao; 
+	R.inputEnabled = condicao; 
+	S.inputEnabled = condicao; 
+	T.inputEnabled = condicao; 
+	U.inputEnabled = condicao; 
+	V.inputEnabled = condicao; 
+	W.inputEnabled = condicao; 
+	X.inputEnabled = condicao; 
+	Y.inputEnabled = condicao; 
+	Z.inputEnabled = condicao; 
+};
+
+/**
+ * 
+ * 
+ */
+function removeParteDoCorpo(){
+	if(minha_vez){ //se for a vez do personagem
+		if(sprite_personagem.frame != 6){
+			sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+		} else { //CONDIÇÃO DE PERDER!
+			pontuacao = pontuacao -2;
+			sprite_personagem.visible = false;
+			label_perdeu.visible = true;
+			restarta_Botoes(false); //desabilita os botões
+			mostrarPalavraCompleta(); //mostra a palavra completa
+			deleteDicaLabel(); //deleta o label da dica iniciar um novo
+			play_btn.visible = true;
+		}
+	} else{
+		if(sprite_personagem_adversario.frame != 6){
+			sprite_personagem_adversario.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+		} else { //CONDIÇÃO DE PERDER!
+			pontuacao = pontuacao -2;
+			sprite_personagem_adversario.visible = false;
+			label_perdeu.visible = true;
+			restarta_Botoes(false); //desabilita os botões
+			mostrarPalavraCompleta(); //mostra a palavra completa
+			deleteDicaLabel(); //deleta o label da dica iniciar um novo
+			play_btn.visible = true;
+		}
+	}
+	
+};
+
+/**
+ * 
+ * 
+ */
+function mostrarPalavraCompleta(){
+	for(var i=0; i<array_sprites_palavra.length; i++){
+		if(array_sprites_palavra[i].frame != 1){
+			array_sprites_palavra[i].frame = 1; //revela as ocultas
+		}
+	}
+};
+
+/**
+ * 
+ * 
+ */
+function deleteDicaLabel(){
+	//remore a dica atual para iniciar uma nova
+	//this.world.remove(label_dica);
+	label_dica.setText('');
+	removeBlocosDica();
+};
+
+/**
+ * 
+ * 
+ */
+function removeBlocosDica(){
+	for(var i=0; i<blocos.length; i++){
+		var sprite = blocos[i];
+		sprite.destroy(); //remove o sprite do jogo
+	} blocos = []; //reinicia o aray
+};
+
+/**
+ * Restarta botões na scene
+ * 
+ */
+function restarta_Botoes(condicao){
+	A.inputEnabled = condicao; 
+	B.inputEnabled = condicao; 
+	C.inputEnabled = condicao; 
+	D.inputEnabled = condicao; 
+	E.inputEnabled = condicao; 
+	F.inputEnabled = condicao; 
+	G.inputEnabled = condicao; 
+	H.inputEnabled = condicao; 
+	I.inputEnabled = condicao; 
+	J.inputEnabled = condicao; 
+	K.inputEnabled = condicao; 
+	L.inputEnabled = condicao; 
+	M.inputEnabled = condicao; 
+	N.inputEnabled = condicao; 
+	O.inputEnabled = condicao; 
+	P.inputEnabled = condicao; 
+	Q.inputEnabled = condicao; 
+	R.inputEnabled = condicao; 
+	S.inputEnabled = condicao; 
+	T.inputEnabled = condicao; 
+	U.inputEnabled = condicao; 
+	V.inputEnabled = condicao; 
+	W.inputEnabled = condicao; 
+	X.inputEnabled = condicao; 
+	Y.inputEnabled = condicao; 
+	Z.inputEnabled = condicao; 
+
+	if(condicao == true){
+		A.setFrames(2,1,3); 
+		B.setFrames(2,1,3); 
+		C.setFrames(2,1,3); 
+		D.setFrames(2,1,3); 
+		E.setFrames(2,1,3); 
+		F.setFrames(2,1,3); 
+		G.setFrames(2,1,3); 
+		H.setFrames(2,1,3); 
+		I.setFrames(2,1,3); 
+		J.setFrames(2,1,3); 
+		K.setFrames(2,1,3); 
+		L.setFrames(2,1,3); 
+		M.setFrames(2,1,3); 
+		N.setFrames(2,1,3); 
+		O.setFrames(2,1,3); 
+		P.setFrames(2,1,3); 
+		Q.setFrames(2,1,3); 
+		R.setFrames(2,1,3); 
+		S.setFrames(2,1,3); 
+		T.setFrames(2,1,3); 
+		U.setFrames(2,1,3); 
+		V.setFrames(2,1,3); 
+		W.setFrames(2,1,3); 
+		X.setFrames(2,1,3); 
+		Y.setFrames(2,1,3); 
+		Z.setFrames(2,1,3);
+	}
+};
+
+/**
+ * Revela letras no painel de palavras ocultas
+ * 
+ */
+function revela_letras(letra, position) {
+	var palavra_aux = palavra.split("");
+	//atualiza a palavra na posição passada por parametro
+	palavra_aux[position] = letra;
+	array_sprites_palavra[position].frame = 1; 
+};
+
+/**
+ * função para ignorar a acentuação para comparação
+ * 
+ */
+function ignora_acentuacao(letra) {
+	if(letra == "Ã" || letra == "Â" || letra == "Á" || letra == "À"){
+		return "A";
+	} else if(letra == "Õ" || letra == "Ô" || letra == "Ó" || letra == "Ò"){
+		return "O";
+	} else if(letra == "Î" || letra == "Í" || letra == "Ì"){
+		return "I";
+	} else if(letra == "Ê" || letra == "É" || letra == "È"){
+		return "E";
+	} else if(letra == "Ú" || letra == "Û" || letra == "Ù"){
+		return "U";
+	} else if(letra == "Ç"){
+		return "C";
+	} else return letra;
+};
+
+/**
+ * função para ignorar a acentuação para comparação
+ * 
+ */
+function desabilita_botoes_lista(){
+	A.inputEnabled = verifica_letra_lista('A'); 
+	B.inputEnabled = verifica_letra_lista('B'); 
+	C.inputEnabled = verifica_letra_lista('C'); 
+	D.inputEnabled = verifica_letra_lista('D'); 
+	E.inputEnabled = verifica_letra_lista('E'); 
+	F.inputEnabled = verifica_letra_lista('F'); 
+	G.inputEnabled = verifica_letra_lista('G'); 
+	H.inputEnabled = verifica_letra_lista('H'); 
+	I.inputEnabled = verifica_letra_lista('I'); 
+	J.inputEnabled = verifica_letra_lista('J'); 
+	K.inputEnabled = verifica_letra_lista('K'); 
+	L.inputEnabled = verifica_letra_lista('L'); 
+	M.inputEnabled = verifica_letra_lista('M'); 
+	N.inputEnabled = verifica_letra_lista('N'); 
+	O.inputEnabled = verifica_letra_lista('O'); 
+	P.inputEnabled = verifica_letra_lista('P'); 
+	Q.inputEnabled = verifica_letra_lista('Q'); 
+	R.inputEnabled = verifica_letra_lista('R'); 
+	S.inputEnabled = verifica_letra_lista('S'); 
+	T.inputEnabled = verifica_letra_lista('T'); 
+	U.inputEnabled = verifica_letra_lista('U'); 
+	V.inputEnabled = verifica_letra_lista('V'); 
+	W.inputEnabled = verifica_letra_lista('W'); 
+	X.inputEnabled = verifica_letra_lista('X'); 
+	Y.inputEnabled = verifica_letra_lista('Y'); 
+	Z.inputEnabled = verifica_letra_lista('Z'); 
+};
+
+/**
+ * função para ignorar a acentuação para comparação
+ * 
+ */
+function verifica_letra_lista(letra){
+	if(letras_clicadas.indexOf(letra) != -1){ 
+		return false; //retorna false para desabilitar o botão
+	} else return true;
+};
+
+/**
+ * função para ignorar a acentuação para comparação
+ * 
+ */
+async function verificaLetraRecebida(letra){		
+	if(letra == 'A'){
+		var frame = await verificaLetra(A, letra, false);
+		A.frame = frame;
+	}
+	if(letra == 'B'){
+		var frame = await verificaLetra(B, letra, false);
+		B.frame = frame;
+	}
+	if(letra == 'C'){
+		var frame = await verificaLetra(C, letra, false);
+		C.frame = frame;
+	}
+	if(letra == 'D'){
+		var frame = await verificaLetra(D, letra, false);
+		D.frame = frame;
+	}
+	if(letra == 'E'){
+		var frame = await verificaLetra(E, letra, false);
+		E.frame = frame;
+	}
+	if(letra == 'F'){
+		var frame = await verificaLetra(F, letra, false);
+		F.frame = frame;
+	}
+	if(letra == 'G'){
+		var frame = await verificaLetra(G, letra, false);
+		G.frame = frame;
+	}
+	if(letra == 'H'){
+		var frame = await verificaLetra(H, letra, false);
+		H.frame = frame;
+	}
+	if(letra == 'I'){
+		var frame = await verificaLetra(I, letra, false);
+		I.frame = frame;
+	}
+	if(letra == 'J'){
+		var frame = await verificaLetra(J, letra, false);
+		J.frame = frame;
+	}
+	if(letra == 'K'){
+		var frame = await verificaLetra(K, letra, false);
+		K.frame = frame;
+	}
+	if(letra == 'L'){
+		var frame = await verificaLetra(L, letra, false);
+		L.frame = frame;
+	}
+	if(letra == 'M'){
+		var frame = await verificaLetra(M, letra, false);
+		M.frame = frame;
+	}
+	if(letra == 'N'){
+		var frame = await verificaLetra(N, letra, false);
+		N.frame = frame;
+	}
+	if(letra == 'O'){
+		var frame = await verificaLetra(O, letra, false);
+		O.frame = frame;
+	}
+	if(letra == 'P'){
+		var frame = await verificaLetra(P, letra, false);
+		P.frame = frame;
+	}
+	if(letra == 'Q'){
+		var frame = await verificaLetra(Q, letra, false);
+		Q.frame = frame;
+	}
+	if(letra == 'R'){
+		var frame = await verificaLetra(R, letra, false);
+		R.frame = frame;
+	}
+	if(letra == 'S'){
+		var frame = await verificaLetra(S, letra, false);
+		S.frame = frame;
+	}
+	if(letra == 'T'){
+		var frame = await verificaLetra(T, letra, false);
+		T.frame = frame;
+	}
+	if(letra == 'U'){
+		var frame = await verificaLetra(U, letra, false);
+		U.frame = frame;
+	}
+	if(letra == 'V'){
+		var frame = await verificaLetra(V, letra, false);
+		V.frame = frame;
+	}
+	if(letra == 'W'){
+		var frame = await verificaLetra(W, letra, false);
+		W.frame = frame;
+	}
+	if(letra == 'X'){
+		var frame = await verificaLetra(X, letra, false);
+		X.frame = frame;
+	}
+	if(letra == 'Y'){
+		var frame = await verificaLetra(Y, letra, false);
+		Y.frame = frame;
+	}
+	if(letra == 'Z'){
+		var frame = await verificaLetra(Z, letra, false);
+		Z.frame = frame;
+	}
+};
+
+ForcaBRAS.PVP.prototype = {
 	create: async function () {
 		nome = localStorage.getItem("jogador_nome");
 		localStorage.removeItem("jogador_nome");
@@ -177,7 +628,7 @@ ForcaBRAS.PVP.prototype = {
 		play_btn.visible = false;
 
 		this.addBotoesTeclado();
-		this.on_off_botoes(false); //desabilita botões no inicio da partida
+		on_off_botoes(false); //desabilita botões no inicio da partida
 	},
 
 	pegarSala: function(){
@@ -191,7 +642,7 @@ ForcaBRAS.PVP.prototype = {
 	},
 
 	atualizarSalaPlayer: function(){
-        firebaseRef = firebase.database(); //console.log(salas);
+        firebaseRef = firebase.database(); console.log(salas);
 		//pesquisa no banco de dados firebase...
         for(i = 0; i < salas.length; i++){ 
             if(salas[i].sala == sala){
@@ -235,11 +686,11 @@ ForcaBRAS.PVP.prototype = {
 		player_label_adversario.setText(nome_adversario);
 
 		sprite_personagem_adversario.loadTexture(personagem_adversario);
-		this.on_off_botoes(true); //habilita botões para o player principal
+		on_off_botoes(true); //habilita botões para o player principal
 	},
 
 	jogarNovamente: async function(){ console.log(pontuacao);
-		this.removeBlocosDica();
+		removeBlocosDica();
 		await this.get_palavra_nova();
 
 		//console.log(array_sprites_palavra);
@@ -249,7 +700,7 @@ ForcaBRAS.PVP.prototype = {
 		} array_sprites_palavra = []; //reinicia o aray
 
 		this.sprite_letras();
-		this.restarta_Botoes(true);
+		restarta_Botoes(true);
 
 		label_parabens.visible = false;
 		label_perdeu.visible = false;
@@ -319,20 +770,6 @@ ForcaBRAS.PVP.prototype = {
 		label_dica.setText(dica);
 	},
 
-	deleteDicaLabel: function(){
-		//remore a dica atual para iniciar uma nova
-		//this.world.remove(label_dica);
-		label_dica.setText('');
-		this.removeBlocosDica();
-	},
-
-	removeBlocosDica: function(){
-		for(var i=0; i<blocos.length; i++){
-			var sprite = blocos[i];
-			sprite.destroy(); //remove o sprite do jogo
-		} blocos = []; //reinicia o aray
-	},
-
 	//adapted from: https://www.w3resource.com/javascript-exercises/javascript-array-exercise-17.php
     sortArray: function(palavras) {
         var ctr = palavras.length, temp, index;
@@ -349,240 +786,7 @@ ForcaBRAS.PVP.prototype = {
         }
         return palavras;
 	},
-	
-	verificaLetraRecebida: function(letra){		
-		if(letra == 'A'){
-			var frame = this.verificaLetra(A, letra, false);
-			A.frame = frame;
-		}
-		if(letra == 'B'){
-			var frame = this.verificaLetra(B, letra, false);
-			B.frame = frame;
-		}
-		if(letra == 'C'){
-			var frame = this.verificaLetra(C, letra, false);
-			C.frame = frame;
-		}
-		if(letra == 'D'){
-			var frame = this.verificaLetra(D, letra, false);
-			D.frame = frame;
-		}
-		if(letra == 'E'){
-			var frame = this.verificaLetra(E, letra, false);
-			E.frame = frame;
-		}
-		if(letra == 'F'){
-			var frame = this.verificaLetra(F, letra, false);
-			F.frame = frame;
-		}
-		if(letra == 'G'){
-			var frame = this.verificaLetra(G, letra, false);
-			G.frame = frame;
-		}
-		if(letra == 'H'){
-			var frame = this.verificaLetra(H, letra, false);
-			H.frame = frame;
-		}
-		if(letra == 'I'){
-			var frame = this.verificaLetra(I, letra, false);
-			I.frame = frame;
-		}
-		if(letra == 'J'){
-			var frame = this.verificaLetra(J, letra, false);
-			J.frame = frame;
-		}
-		if(letra == 'K'){
-			var frame = this.verificaLetra(K, letra, false);
-			K.frame = frame;
-		}
-		if(letra == 'L'){
-			var frame = this.verificaLetra(L, letra, false);
-			L.frame = frame;
-		}
-		if(letra == 'M'){
-			var frame = this.verificaLetra(M, letra, false);
-			M.frame = frame;
-		}
-		if(letra == 'N'){
-			var frame = this.verificaLetra(N, letra, false);
-			N.frame = frame;
-		}
-		if(letra == 'O'){
-			var frame = this.verificaLetra(O, letra, false);
-			O.frame = frame;
-		}
-		if(letra == 'P'){
-			var frame = this.verificaLetra(P, letra, false);
-			P.frame = frame;
-		}
-		if(letra == 'Q'){
-			var frame = this.verificaLetra(Q, letra, false);
-			Q.frame = frame;
-		}
-		if(letra == 'R'){
-			var frame = this.verificaLetra(R, letra, false);
-			R.frame = frame;
-		}
-		if(letra == 'S'){
-			var frame = this.verificaLetra(S, letra, false);
-			S.frame = frame;
-		}
-		if(letra == 'T'){
-			var frame = this.verificaLetra(T, letra, false);
-			T.frame = frame;
-		}
-		if(letra == 'U'){
-			var frame = this.verificaLetra(U, letra, false);
-			U.frame = frame;
-		}
-		if(letra == 'V'){
-			var frame = this.verificaLetra(V, letra, false);
-			V.frame = frame;
-		}
-		if(letra == 'W'){
-			var frame = this.verificaLetra(W, letra, false);
-			W.frame = frame;
-		}
-		if(letra == 'X'){
-			var frame = this.verificaLetra(X, letra, false);
-			X.frame = frame;
-		}
-		if(letra == 'Y'){
-			var frame = this.verificaLetra(Y, letra, false);
-			Y.frame = frame;
-		}
-		if(letra == 'Z'){
-			var frame = this.verificaLetra(Z, letra, false);
-			Z.frame = frame;
-		}
-	},
 
-	/**
-	 * Verifica se a letra informada pelo teclado está contida na palavra
-	 * e exibe a quantidade
-	 */
-	verificaLetra: function(botao, letra, controle) {
-		var frame; //frame para certo (4) ou errado (5)
-		var condicao; 
-		var palavra_aux = palavra.split(""); //transforma a palavra em array
-		
-		if(controle){ //se controle for verdadeiro, significa que veio de quem clicou no botão
-			Client.socket.emit('click', nome); //envia a letra pro servidor
-			Client.socket.emit('send_letra', letra); //envia a letra pro servidor
-		} //serve para não entrar em um loop infinito entre servidor-cliente
-
-		letras_clicadas.push(letra);
-
-		for(var i = 0; i<palavra.length; i++){ 
-			if(letra == this.ignora_acentuacao(palavra_aux[i])){ 
-				this.revela_letras(palavra_aux[i].toLowerCase(), i);
-
-				condicao = true; //basta entrar uma vez para a condição ser verdadeira
-				
-				tamanho_palavra_aux--; //decrementa 
-
-				if(tamanho_palavra_aux == 0){ //concluiu a palavra
-					label_parabens.visible = true; 
-					this.restarta_Botoes(false); //desabilita os botões
-					pontuacao = pontuacao + 10; //ATUALIZA A PONTUAÇÃO
-					play_btn.visible = true;
-					this.deleteDicaLabel(); //deleta o label da dica iniciar um novo
-
-					sprite_personagem.frame = 0; //frame do personagem inicial
-					sprite_personagem.visible = true;
-				}
-			} 
-		}
-
-		botao.inputEnabled = false; //desabilita o botão
-		if(condicao){ 
-			frame = 4; //certo 
-		} else { 
-			frame = 5; //errado 
-			this.removeParteDoCorpo();
-			if(minha_vez){ //se for a vez do player, desabilita botões e passa para o outro
-				this.liberar_botoes(); 
-				minha_vez = false; //perdeu a vez
-			} else{
-				this.liberar_botoes(); 
-				minha_vez = true; //ganhou a vez
-			}
-		}
-
-		return frame;
-	},
-
-	/**
-	 * 
-	 * 
-	 */
-	removeParteDoCorpo: function(){
-		if(minha_vez){ //se for a vez do personagem
-			if(sprite_personagem.frame != 6){
-				sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
-			} else { //CONDIÇÃO DE PERDER!
-				pontuacao = pontuacao -2;
-				sprite_personagem.visible = false;
-				label_perdeu.visible = true;
-				this.restarta_Botoes(false); //desabilita os botões
-				this.mostrarPalavraCompleta(); //mostra a palavra completa
-				this.deleteDicaLabel(); //deleta o label da dica iniciar um novo
-				play_btn.visible = true;
-			}
-		} else{
-			if(sprite_personagem_adversario.frame != 6){
-				sprite_personagem_adversario.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
-			} else { //CONDIÇÃO DE PERDER!
-				pontuacao = pontuacao -2;
-				sprite_personagem_adversario.visible = false;
-				label_perdeu.visible = true;
-				this.restarta_Botoes(false); //desabilita os botões
-				this.mostrarPalavraCompleta(); //mostra a palavra completa
-				this.deleteDicaLabel(); //deleta o label da dica iniciar um novo
-				play_btn.visible = true;
-			}
-		}
-		
-	},
-
-	mostrarPalavraCompleta: function(){
-		for(var i=0; i<array_sprites_palavra.length; i++){
-			if(array_sprites_palavra[i].frame != 1){
-				array_sprites_palavra[i].frame = 1; //revela as ocultas
-			}
-		}
-	},
-
-	/**
-	 * Revela letras no painel de palavras ocultas
-	 * 
-	 */
-	revela_letras: function(letra, position) {
-		var palavra_aux = palavra.split("");
-		//atualiza a palavra na posição passada por parametro
-		palavra_aux[position] = letra;
-		array_sprites_palavra[position].frame = 1; 
-	},
-
-	/**
-	 * função para ignorar a acentuação para comparação
-	 * 
-	 */
-	ignora_acentuacao: function(letra) {
-		if(letra == "Ã" || letra == "Â" || letra == "Á" || letra == "À"){
-			return "A";
-		} else if(letra == "Õ" || letra == "Ô" || letra == "Ó" || letra == "Ò"){
-			return "O";
-		} else if(letra == "Î" || letra == "Í" || letra == "Ì"){
-			return "I";
-		} else if(letra == "Ê" || letra == "É" || letra == "È"){
-			return "E";
-		} else if(letra == "Ú" || letra == "Û" || letra == "Ù"){
-			return "U";
-		} else if(letra == "Ç"){
-			return "C";
-		} else return letra;
-	},
 
 	/**
 	 * Função para colocar os sprites das letras da palavra centralizadas
@@ -604,131 +808,6 @@ ForcaBRAS.PVP.prototype = {
 		}
 	},
 
-	buscarBotoesPressionados: function(letra){
-		for(i = 0; i < letras_clicadas.length; i++){
-			if(letra == letras_clicadas[i]){ console.log(letra);
-				return false; 
-			} else return true;
-		}
-	},
-
-	liberar_botoes: function(){
-		//só hailita o que não estiver na lista de botões pressionados
-		A.inputEnabled = this.buscarBotoesPressionados('A'); 
-		B.inputEnabled = this.buscarBotoesPressionados('B'); 
-		C.inputEnabled = this.buscarBotoesPressionados('C'); 
-		D.inputEnabled = this.buscarBotoesPressionados('D'); 
-		E.inputEnabled = this.buscarBotoesPressionados('E'); 
-		F.inputEnabled = this.buscarBotoesPressionados('F'); 
-		G.inputEnabled = this.buscarBotoesPressionados('G'); 
-		H.inputEnabled = this.buscarBotoesPressionados('H'); 
-		I.inputEnabled = this.buscarBotoesPressionados('I'); 
-		J.inputEnabled = this.buscarBotoesPressionados('J'); 
-		K.inputEnabled = this.buscarBotoesPressionados('K'); 
-		L.inputEnabled = this.buscarBotoesPressionados('L'); 
-		M.inputEnabled = this.buscarBotoesPressionados('M'); 
-		N.inputEnabled = this.buscarBotoesPressionados('N'); 
-		O.inputEnabled = this.buscarBotoesPressionados('O'); 
-		P.inputEnabled = this.buscarBotoesPressionados('P'); 
-		Q.inputEnabled = this.buscarBotoesPressionados('Q'); 
-		R.inputEnabled = this.buscarBotoesPressionados('R'); 
-		S.inputEnabled = this.buscarBotoesPressionados('S'); 
-		T.inputEnabled = this.buscarBotoesPressionados('T'); 
-		U.inputEnabled = this.buscarBotoesPressionados('U'); 
-		V.inputEnabled = this.buscarBotoesPressionados('V'); 
-		W.inputEnabled = this.buscarBotoesPressionados('W'); 
-		X.inputEnabled = this.buscarBotoesPressionados('X'); 
-		Y.inputEnabled = this.buscarBotoesPressionados('Y'); 
-		Z.inputEnabled = this.buscarBotoesPressionados('Z'); 
-	},
-
-	on_off_botoes: function(condicao){
-		A.inputEnabled = condicao; 
-		B.inputEnabled = condicao; 
-		C.inputEnabled = condicao; 
-		D.inputEnabled = condicao; 
-		E.inputEnabled = condicao; 
-		F.inputEnabled = condicao; 
-		G.inputEnabled = condicao; 
-		H.inputEnabled = condicao; 
-		I.inputEnabled = condicao; 
-		J.inputEnabled = condicao; 
-		K.inputEnabled = condicao; 
-		L.inputEnabled = condicao; 
-		M.inputEnabled = condicao; 
-		N.inputEnabled = condicao; 
-		O.inputEnabled = condicao; 
-		P.inputEnabled = condicao; 
-		Q.inputEnabled = condicao; 
-		R.inputEnabled = condicao; 
-		S.inputEnabled = condicao; 
-		T.inputEnabled = condicao; 
-		U.inputEnabled = condicao; 
-		V.inputEnabled = condicao; 
-		W.inputEnabled = condicao; 
-		X.inputEnabled = condicao; 
-		Y.inputEnabled = condicao; 
-		Z.inputEnabled = condicao; 
-	},
-
-	restarta_Botoes: function(condicao){
-		A.inputEnabled = condicao; 
-		B.inputEnabled = condicao; 
-		C.inputEnabled = condicao; 
-		D.inputEnabled = condicao; 
-		E.inputEnabled = condicao; 
-		F.inputEnabled = condicao; 
-		G.inputEnabled = condicao; 
-		H.inputEnabled = condicao; 
-		I.inputEnabled = condicao; 
-		J.inputEnabled = condicao; 
-		K.inputEnabled = condicao; 
-		L.inputEnabled = condicao; 
-		M.inputEnabled = condicao; 
-		N.inputEnabled = condicao; 
-		O.inputEnabled = condicao; 
-		P.inputEnabled = condicao; 
-		Q.inputEnabled = condicao; 
-		R.inputEnabled = condicao; 
-		S.inputEnabled = condicao; 
-		T.inputEnabled = condicao; 
-		U.inputEnabled = condicao; 
-		V.inputEnabled = condicao; 
-		W.inputEnabled = condicao; 
-		X.inputEnabled = condicao; 
-		Y.inputEnabled = condicao; 
-		Z.inputEnabled = condicao; 
-
-		if(condicao == true){
-			A.setFrames(2,1,3); 
-			B.setFrames(2,1,3); 
-			C.setFrames(2,1,3); 
-			D.setFrames(2,1,3); 
-			E.setFrames(2,1,3); 
-			F.setFrames(2,1,3); 
-			G.setFrames(2,1,3); 
-			H.setFrames(2,1,3); 
-			I.setFrames(2,1,3); 
-			J.setFrames(2,1,3); 
-			K.setFrames(2,1,3); 
-			L.setFrames(2,1,3); 
-			M.setFrames(2,1,3); 
-			N.setFrames(2,1,3); 
-			O.setFrames(2,1,3); 
-			P.setFrames(2,1,3); 
-			Q.setFrames(2,1,3); 
-			R.setFrames(2,1,3); 
-			S.setFrames(2,1,3); 
-			T.setFrames(2,1,3); 
-			U.setFrames(2,1,3); 
-			V.setFrames(2,1,3); 
-			W.setFrames(2,1,3); 
-			X.setFrames(2,1,3); 
-			Y.setFrames(2,1,3); 
-			Z.setFrames(2,1,3);
-		}
-	},
-	
 	/**
 	 * Insere os botões do teclado na tela do jogo
 	 * 
@@ -737,7 +816,7 @@ ForcaBRAS.PVP.prototype = {
 		var x = 96; var y = 435; var espacamento = 64;
 
 		A = this.add.button(x, y, 'A'+escolha_nivel, function(){
-			var frame = this.verificaLetra(A, 'A', true);
+			var frame = verificaLetra(A, 'A', true);
 			A.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -745,7 +824,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		B = this.add.button(x, y, 'B'+escolha_nivel, function(){
-			var frame = this.verificaLetra(B, 'B', true);
+			var frame = verificaLetra(B, 'B', true);
 			B.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -753,7 +832,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		C = this.add.button(x, y, 'C'+escolha_nivel, function(){
-			var frame = this.verificaLetra(C, 'C', true);
+			var frame = verificaLetra(C, 'C', true);
 			C.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -761,7 +840,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		D = this.add.button(x, y, 'D'+escolha_nivel, function(){
-			var frame = this.verificaLetra(D, 'D', true);
+			var frame = verificaLetra(D, 'D', true);
 			D.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -769,7 +848,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		E = this.add.button(x, y, 'E'+escolha_nivel, function(){
-			var frame = this.verificaLetra(E, 'E', true);
+			var frame = verificaLetra(E, 'E', true);
 			E.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -777,7 +856,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		F = this.add.button(x, y, 'F'+escolha_nivel, function(){
-			var frame = this.verificaLetra(F, 'F', true);
+			var frame = verificaLetra(F, 'F', true);
 			F.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -785,7 +864,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		G = this.add.button(x, y, 'G'+escolha_nivel, function(){
-			var frame = this.verificaLetra(G, 'G', true);
+			var frame = verificaLetra(G, 'G', true);
 			G.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -793,7 +872,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		H = this.add.button(x, y, 'H'+escolha_nivel, function(){
-			var frame = this.verificaLetra(H, 'H', true);
+			var frame = verificaLetra(H, 'H', true);
 			H.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -801,7 +880,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		I = this.add.button(x, y, 'I'+escolha_nivel, function(){
-			var frame = this.verificaLetra(I, 'I', true);
+			var frame = verificaLetra(I, 'I', true);
 			I.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -809,7 +888,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		J = this.add.button(x, y, 'J'+escolha_nivel, function(){
-			var frame = this.verificaLetra(J, 'J', true);
+			var frame = verificaLetra(J, 'J', true);
 			J.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -817,7 +896,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		K = this.add.button(x, y, 'K'+escolha_nivel, function(){
-			var frame = this.verificaLetra(K, 'K', true);
+			var frame = verificaLetra(K, 'K', true);
 			K.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -825,7 +904,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		L = this.add.button(x, y, 'L'+escolha_nivel, function(){
-			var frame = this.verificaLetra(L, 'L', true);
+			var frame = verificaLetra(L, 'L', true);
 			L.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -833,7 +912,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		M = this.add.button(x, y, 'M'+escolha_nivel, function(){
-			var frame = this.verificaLetra(M, 'M', true);
+			var frame = verificaLetra(M, 'M', true);
 			M.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -842,7 +921,7 @@ ForcaBRAS.PVP.prototype = {
 		y = y + espacamento; x = 96;
 
 		N = this.add.button(x, y, 'N'+escolha_nivel, function(){
-			var frame = this.verificaLetra(N, 'N', true);
+			var frame = verificaLetra(N, 'N', true);
 			N.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -851,7 +930,7 @@ ForcaBRAS.PVP.prototype = {
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		O = this.add.button(x, y, 'O'+escolha_nivel, function(){
-			var frame = this.verificaLetra(O, 'O', true);
+			var frame = verificaLetra(O, 'O', true);
 			O.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -859,7 +938,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		P = this.add.button(x, y, 'P'+escolha_nivel, function(){
-			var frame = this.verificaLetra(P, 'P', true);
+			var frame = verificaLetra(P, 'P', true);
 			P.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -867,7 +946,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		Q = this.add.button(x, y, 'Q'+escolha_nivel, function(){
-			var frame = this.verificaLetra(Q, 'Q', true);
+			var frame = verificaLetra(Q, 'Q', true);
 			Q.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -875,7 +954,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		R = this.add.button(x, y, 'R'+escolha_nivel, function(){
-			var frame = this.verificaLetra(R, 'R', true);
+			var frame = verificaLetra(R, 'R', true);
 			R.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -883,7 +962,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		S = this.add.button(x, y, 'S'+escolha_nivel, function(){
-			var frame = this.verificaLetra(S, 'S', true);
+			var frame = verificaLetra(S, 'S', true);
 			S.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -891,7 +970,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		T = this.add.button(x, y, 'T'+escolha_nivel, function(){
-			var frame = this.verificaLetra(T, 'T', true);
+			var frame = verificaLetra(T, 'T', true);
 			T.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -899,7 +978,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		U = this.add.button(x, y, 'U'+escolha_nivel, function(){
-			var frame = this.verificaLetra(U, 'U', true);
+			var frame = verificaLetra(U, 'U', true);
 			U.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -907,7 +986,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		V = this.add.button(x, y, 'V'+escolha_nivel, function(){
-			var frame = this.verificaLetra(V, 'V', true);
+			var frame = verificaLetra(V, 'V', true);
 			V.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -915,7 +994,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		W = this.add.button(x, y, 'W'+escolha_nivel, function(){
-			var frame = this.verificaLetra(W, 'W', true);
+			var frame = verificaLetra(W, 'W', true);
 			W.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -923,7 +1002,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		X = this.add.button(x, y, 'X'+escolha_nivel, function(){
-			var frame = this.verificaLetra(X, 'X', true);
+			var frame = verificaLetra(X, 'X', true);
 			X.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -931,7 +1010,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		Y = this.add.button(x, y, 'Y'+escolha_nivel, function(){
-			var frame = this.verificaLetra(Y, 'Y', true);
+			var frame = verificaLetra(Y, 'Y', true);
 			Y.setFrames(frame);
 
 		}, this, 2,1,3);
@@ -939,7 +1018,7 @@ ForcaBRAS.PVP.prototype = {
 		x = x + espacamento;
 
 		Z = this.add.button(x, y, 'Z'+escolha_nivel, function(){
-			var frame = this.verificaLetra(Z, 'Z', true);
+			var frame = verificaLetra(Z, 'Z', true);
 			Z.setFrames(frame);
 
 		}, this, 2,1,3);
