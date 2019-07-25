@@ -138,8 +138,6 @@ function verificaLetra(botao, letra, controle) {
 		letras_clicadas.push(letra); //console.log(letras_clicadas); 
 	} //serve para não entrar em um loop infinito entre servidor-cliente
 
-	//desabilita_botoes_lista();
-
 	for(var i = 0; i<palavra.length; i++){ 
 		if(letra == ignora_acentuacao(palavra_aux[i])){ 
 			revela_letras(palavra_aux[i].toLowerCase(), i);
@@ -151,7 +149,7 @@ function verificaLetra(botao, letra, controle) {
 			if(tamanho_palavra_aux == 0){ //concluiu a palavra
 				label_parabens.visible = true; 
 				restarta_Botoes(false); //desabilita os botões
-				pontuacao = pontuacao + 10; //ATUALIZA A PONTUAÇÃO
+				if(minha_vez) pontuacao = pontuacao + 10; //atualiza pontuação se for sua vez
 				play_btn.visible = true;
 				deleteDicaLabel(); //deleta o label da dica iniciar um novo
 
@@ -264,9 +262,10 @@ function on_off_botoes(condicao){
 function removeParteDoCorpo(){
 	if(minha_vez){ //se for a vez do personagem
 		if(sprite_personagem.frame != 6){
-			sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+			//sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+			sprite_personagem.alpha = sprite_personagem.alpha - 0.142; //diminui a opacidade do personagem
 		} else { //CONDIÇÃO DE PERDER!
-			pontuacao = pontuacao -2;
+			//pontuacao = pontuacao -2;
 			sprite_personagem.visible = false;
 			label_perdeu.visible = true;
 			restarta_Botoes(false); //desabilita os botões
@@ -276,9 +275,10 @@ function removeParteDoCorpo(){
 		}
 	} else{
 		if(sprite_personagem_adversario.frame != 6){
-			sprite_personagem_adversario.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+			//sprite_personagem_adversario.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+			sprite_personagem_adversario.alpha = sprite_personagem.alpha - 0.142; //diminui a opacidade do personagem
 		} else { //CONDIÇÃO DE PERDER!
-			pontuacao = pontuacao -2;
+			//pontuacao = pontuacao -2;
 			sprite_personagem_adversario.visible = false;
 			label_perdeu.visible = true;
 			restarta_Botoes(false); //desabilita os botões
