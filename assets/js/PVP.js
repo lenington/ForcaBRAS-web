@@ -127,7 +127,7 @@ Client.getPalavra = function(){
  * Verifica se a letra informada pelo teclado está contida na palavra
  * e exibe a quantidade
  */
-function verificaLetra(botao, letra, controle) {
+async function verificaLetra(botao, letra, controle) {
 	var frame; //frame para certo (4) ou errado (5)
 	var condicao; 
 	var palavra_aux = palavra.split(""); //transforma a palavra em array
@@ -149,12 +149,24 @@ function verificaLetra(botao, letra, controle) {
 			if(tamanho_palavra_aux == 0){ //concluiu a palavra
 				label_parabens.visible = true; 
 				restarta_Botoes(false); //desabilita os botões
-				if(minha_vez) pontuacao = pontuacao + 10; //atualiza pontuação se for sua vez
-				play_btn.visible = true;
+				if(minha_vez) {
+					pontuacao = pontuacao + 10; //atualiza pontuação se for sua vez
+					minha_vez = false; 
+					on_off_botoes(false);
+				} else{
+					minha_vez = true; //console.log("ganhou a vez");
+				}
+
+				letras_clicadas = []; //restarta lista de letras clicadas
+				
 				deleteDicaLabel(); //deleta o label da dica iniciar um novo
 
 				sprite_personagem.frame = 0; //frame do personagem inicial
 				sprite_personagem.visible = true;
+				objeto_atual = null; //reinicia a palavra
+
+				play_btn.visible = true; //aparece apenas para o playe principal da fase
+				
 			}
 		} 
 	}
@@ -262,28 +274,28 @@ function on_off_botoes(condicao){
 function removeParteDoCorpo(){
 	if(minha_vez){ //se for a vez do personagem
 		if(sprite_personagem.frame != 6){
-			//sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+			sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
 			sprite_personagem.alpha = sprite_personagem.alpha - 0.142; //diminui a opacidade do personagem
 		} else { //CONDIÇÃO DE PERDER!
-			//pontuacao = pontuacao -2;
 			sprite_personagem.visible = false;
 			label_perdeu.visible = true;
 			restarta_Botoes(false); //desabilita os botões
 			mostrarPalavraCompleta(); //mostra a palavra completa
 			deleteDicaLabel(); //deleta o label da dica iniciar um novo
+			minha_vez = false; //passa a vez
 			play_btn.visible = true;
 		}
 	} else{
 		if(sprite_personagem_adversario.frame != 6){
-			//sprite_personagem_adversario.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+			sprite_personagem_adversario.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
 			sprite_personagem_adversario.alpha = sprite_personagem.alpha - 0.142; //diminui a opacidade do personagem
 		} else { //CONDIÇÃO DE PERDER!
-			//pontuacao = pontuacao -2;
 			sprite_personagem_adversario.visible = false;
 			label_perdeu.visible = true;
 			restarta_Botoes(false); //desabilita os botões
 			mostrarPalavraCompleta(); //mostra a palavra completa
 			deleteDicaLabel(); //deleta o label da dica iniciar um novo
+			minha_vez = true;
 			play_btn.visible = true;
 		}
 	}
@@ -594,16 +606,16 @@ ForcaBRAS.PVP.prototype = {
 			this.get_palavra_nova();
 			this.sprite_letras();
 
-			ponto_label = this.add.text(100, 120, 'Pontos: 30', style);
-			ponto_label_adversario = this.add.text(724, 120, 'Pontos: 60', style); 
+			ponto_label = this.add.text(100, 120, 'Pontos: 0', style);
+			ponto_label_adversario = this.add.text(724, 120, '', style); 
 
 			minha_vez = true; //vez de jogar
 		} else{ 
 			await this.get_palavra_nova(); 
 			this.sprite_letras();
 
-			ponto_label = this.add.text(100, 120, 'Pontos: 60', style);
-			ponto_label_adversario = this.add.text(724, 120, 'Pontos: 30', style); 
+			ponto_label = this.add.text(100, 120, 'Pontos: 0', style);
+			ponto_label_adversario = this.add.text(724, 120, 'Pontos: 0', style); 
 		}
 
 		//aqui vai o nome do personagem e abaixo a pontuação
@@ -657,7 +669,9 @@ ForcaBRAS.PVP.prototype = {
 						nivel: escolha_nivel,
 						personagem1: salas[i].personagem1,
 						personagem2: personagem,
-						player2: salas[i].player2
+						player2: salas[i].player2,
+						pontos1: "",
+						pontos2: ""
 					});
 
 					Client.mensagemSala(sala, salas[i].player2, personagem);
@@ -672,7 +686,9 @@ ForcaBRAS.PVP.prototype = {
 						nivel: escolha_nivel,
 						personagem1: personagem,
 						personagem2: "",
-						player2: ""
+						player2: "",
+						pontos1: "",
+						pontos2: ""
 					});
 					
 					Client.mensagemSala(sala, salas[i].player1, '');
@@ -684,31 +700,40 @@ ForcaBRAS.PVP.prototype = {
 	
 	iniciaPersonagemAdversario: function(){
 		player_label_adversario.setText(nome_adversario);
+		ponto_label_adversario.setText('Pontos: 0');
 
 		sprite_personagem_adversario.loadTexture(personagem_adversario);
 		on_off_botoes(true); //habilita botões para o player principal
 	},
 
-	jogarNovamente: async function(){ console.log(pontuacao);
+	jogarNovamente: async function(){ 
 		removeBlocosDica();
-		await this.get_palavra_nova();
+		if(await this.get_palavra_nova() == 1){
+			
+			for(var i=0; i<array_sprites_palavra.length; i++){
+				var sprite = array_sprites_palavra[i];
+				sprite.destroy(); //remove o sprite do jogo
+			} array_sprites_palavra = []; //reinicia o aray
 
-		//console.log(array_sprites_palavra);
-		for(var i=0; i<array_sprites_palavra.length; i++){
-			var sprite = array_sprites_palavra[i];
-			sprite.destroy(); //remove o sprite do jogo
-		} array_sprites_palavra = []; //reinicia o aray
+			this.sprite_letras();
+			restarta_Botoes(true);
 
-		this.sprite_letras();
-		restarta_Botoes(true);
+			if(!minha_vez){ //se não for a vez do jogador, desabilita os botões
+				on_off_botoes(false);
+			}
 
-		label_parabens.visible = false;
-		label_perdeu.visible = false;
-		play_btn.visible = false;
+			label_parabens.visible = false;
+			label_perdeu.visible = false;
+			play_btn.visible = false;
 
-		sprite_personagem.frame = 0; //frame do personagem inicial
-		sprite_personagem.visible = true;
-		
+			sprite_personagem.frame = 0; //frame do personagem inicial
+			sprite_personagem.alpha = 1; //mostra o personagem na tela
+			sprite_personagem.visible = true;
+
+			sprite_personagem_adversario.frame = 0; //frame do personagem adversario
+			sprite_personagem_adversario.alpha = 1; //mostra o personagem adversario na tela
+			sprite_personagem_adversario.visible = true;
+		}
 	},
 
 	/**
@@ -718,10 +743,13 @@ ForcaBRAS.PVP.prototype = {
 	get_palavra_nova: async function() {
 		if(player_principal){
 			objeto_atual = palavras.shift(); //remove e retorna o primeiro object (contendo palavra e dica)
-			//console.log(objeto_atual);
+			console.log(objeto_atual);
 		} else {
 			Client.socket.emit('palavras', nome);
 			objeto_atual = await Client.getPalavra();
+			if(objeto_atual == null){
+				return -1;
+			} 
 		}
 
 		if(objeto_atual !== null){
@@ -730,13 +758,14 @@ ForcaBRAS.PVP.prototype = {
 			tamanho_palavra_aux = tamanho_palavra; //atribui à variável auxiliadora
 			dica = objeto_atual.dica.toUpperCase(); //dica da primeira palavra
 
-			this.blocosDica(dica.length);
+			this.blocosDica();
 		} else{
 			//FIM DE JOGO! FIM DE JOGO!  DE JOGO! FIM DE JOGO! FIM DE JOGO!
 		}
+		return 1;
 	},
 
-	blocosDica: function(tamanho_dica){
+	blocosDica: function(){
 		dica_aux = dica.split(""); //
 		var x = 200, y = 230;
 
