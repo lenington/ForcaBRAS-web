@@ -17,7 +17,6 @@ ForcaBRAS.Preloader.prototype = {
 		this.load.image('Backgroud_Nivel', 'assets/img/menu_itens/TelaNivel.png');
 		this.load.image('Backgroud_Escolha', 'assets/img/menu_itens/Escolha.png');
 		this.load.image('Backgroud_Personagens', 'assets/img/menu_itens/TelaPersonagens.png');
-		this.load.image('Teclado', 'assets/img/menu_itens/FundoTeclado.png');
 		this.load.image('Perdeu', 'assets/img/menu_itens/perdeu.png');
 		this.load.image('Parabens', 'assets/img/menu_itens/parabens.png');
 		this.load.image('criar_sala', 'assets/img/menu_itens/criar_sala.png');

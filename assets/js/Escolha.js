@@ -47,17 +47,17 @@ ForcaBRAS.TelaEscolha.prototype = {
 	create: function () {
         this.add.image(0, 0, 'Backgroud_Escolha');
 
-		this.createButton('alfabeto', 350, 150, 
+		this.createButton('alfabeto', this.world.centerX, 250, 
         function(){
             escolha_fase = "alfabeto";
             this.readBDSalas();
             this.readBDPalavras();
         });
-        this.createButton('numerais', 350, 300, 
-        function(){
-            escolha_fase = "numerais";
-        });
-        this.createButton('voltar', 380, 450, 
+        //this.createButton('numerais', 350, 300, 
+        //function(){
+        //    escolha_fase = "numerais";
+        //});
+        this.createButton('voltar', this.world.centerX, 500, 
         function(){
             this.state.start('MainMenu');
         });
@@ -116,6 +116,7 @@ ForcaBRAS.TelaEscolha.prototype = {
         if(string == 'voltar'){
             button.scale.setTo(0.65,0.65);
         }
+        button.anchor.set(0.5);
     },
 
 };

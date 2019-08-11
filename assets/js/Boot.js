@@ -7,6 +7,7 @@ var firebaseRef; //variável para o Firebase (Google)
 var escolha_fase; //tipos de fases: Numerais, Alfabeto
 var escolha_nivel; //tipos de níveis: Fácil, Difícil
 var multiplayer;
+var escolha_multiplayer;
 
 ForcaBRAS = {
 	

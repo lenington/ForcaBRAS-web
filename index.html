@@ -59,36 +59,58 @@
     var socket = io(); 
 
     (function () {
-    var game = new Phaser.Game(1024, 600, Phaser.AUTO, 'game');
+    try{
+        var game = new Phaser.Game(1024, 600, Phaser.AUTO, 'game');
 
-    game.Teste = 'MainMenu';
+        game.Teste = 'MainMenu';
 
-    game.state.add('Boot', ForcaBRAS.Boot);
-    game.state.add('Preloader', ForcaBRAS.Preloader);
-    game.state.add('MainMenu', ForcaBRAS.MainMenu);
-    game.state.add('TelaEscolha', ForcaBRAS.TelaEscolha);
-    game.state.add('Sobre', ForcaBRAS.Sobre);
-    game.state.add('TelaNivel', ForcaBRAS.TelaNivel);
-    game.state.add('Personagens', ForcaBRAS.Personagens);
-    game.state.add('TesteSprite', ForcaBRAS.TesteSprite);
-    game.state.add('EsperarJogador', ForcaBRAS.EsperarJogador);
-    game.state.add('EntrarSala', ForcaBRAS.EntrarSala);
-    game.state.add('Modalidade', ForcaBRAS.Modalidade);
-    game.state.add('Multiplayer', ForcaBRAS.Multiplayer);
-    game.state.add('PVP', ForcaBRAS.PVP);
+        game.state.add('Boot', ForcaBRAS.Boot);
+        game.state.add('Preloader', ForcaBRAS.Preloader);
+        game.state.add('MainMenu', ForcaBRAS.MainMenu);
+        game.state.add('TelaEscolha', ForcaBRAS.TelaEscolha);
+        game.state.add('Sobre', ForcaBRAS.Sobre);
+        game.state.add('TelaNivel', ForcaBRAS.TelaNivel);
+        game.state.add('Personagens', ForcaBRAS.Personagens);
+        game.state.add('TesteSprite', ForcaBRAS.TesteSprite);
+        game.state.add('EsperarJogador', ForcaBRAS.EsperarJogador);
+        game.state.add('EntrarSala', ForcaBRAS.EntrarSala);
+        game.state.add('Modalidade', ForcaBRAS.Modalidade);
+        game.state.add('Multiplayer', ForcaBRAS.Multiplayer);
+        game.state.add('PVP', ForcaBRAS.PVP);
 
-    // Initialize Firebase
-    var config = {
-        apiKey: "AIzaSyA1CmoYnpjbYGQcVl3b1qMCtjoJPCx5FEM",
-        authDomain: "forcabras-phaser.firebaseapp.com",
-        databaseURL: "https://forcabras-phaser.firebaseio.com",
-        projectId: "forcabras-phaser",
-        storageBucket: "forcabras-phaser.appspot.com",
-        messagingSenderId: "576013453414"
-    }; firebase.initializeApp(config);
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyA1CmoYnpjbYGQcVl3b1qMCtjoJPCx5FEM",
+            authDomain: "forcabras-phaser.firebaseapp.com",
+            databaseURL: "https://forcabras-phaser.firebaseio.com",
+            projectId: "forcabras-phaser",
+            storageBucket: "forcabras-phaser.appspot.com",
+            messagingSenderId: "576013453414"
+        }; firebase.initializeApp(config);
 
-    game.state.start('Boot');
+        // Initialize Facebook
+        window.fbAsyncInit = function() {
+            FB.init({
+            appId      : '662712474248306',
+            xfbml      : true,
+            version    : 'v4.0'
+            });
+            FB.AppEvents.logPageView();
+        };
 
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+
+        game.state.start('Boot');
+    } catch (e){
+        console.log("ERRO::> ",e);
+    }
     })();
 
 </script>

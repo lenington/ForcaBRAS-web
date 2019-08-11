@@ -2,9 +2,6 @@
 	
 };
 
-var Client = {};
-Client.socket = io.connect(); //conexão do cliente e servidor da aplicação
-
 var A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z;
 var alfabeto = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T',
 'U','V','W','X','Y','Z'];
@@ -16,7 +13,7 @@ var palavra = ""; //palavra completa
 var tamanho_palavra, tamanho_palavra_aux;
 var dica = ""; //dica da palavra
 var array_sprites_palavra = []; //array para os labels da palavra
-var label_perdeu, label_parabens;
+var label_perdeu, label_parabens, ponto_label;
 var play_btn;
 var pontuacao = 0; //pontuação do jogador (10 palavra completa, -2 palavra errada)
 var blocos = []; //blocos da dica
@@ -25,35 +22,30 @@ var blocos = []; //blocos da dica
 ForcaBRAS.TesteSprite.prototype = {
 	
 	create: function () { console.log(salas);
-		//TESTE LOGIN:
-		var sala = localStorage.getItem("sala_nome");
-		var nome = localStorage.getItem("jogador_nome");
-		Client.socket.emit('sala', [sala, nome]);
 		
 		this.add.image(0, 0, 'Backgroud_Game');
-		//this.add.image(100, 385, 'Teclado');
 		
 		label_perdeu = this.add.image(320, 150, 'Perdeu'); 
 		label_perdeu.visible = false;
 		label_parabens = this.add.image(283, 105, 'Parabens'); 
 		label_parabens.visible = false;
 
+		var style = { font: "bold 18px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
+		ponto_label = this.add.text(100, 70, 'Pontos: 0', style);
+		
         sprite_personagem = this.add.sprite(100, 100, personagem);
 		sprite_personagem.frame = 0;
 		
 		//botões 
-		this.add.button(782, 50, 'voltar_menor', function(){
+		var voltar = this.add.button(850, 10, 'voltar_menor', function(){
             this.state.start('MainMenu');
-        }, this, 1,0,2);
+		}, this, 1,0,2);
+		voltar.scale.setTo(0.75,0.75);
+		
 		play_btn = this.add.button(770, 150, 'play_medio', this.jogarNovamente, this, 1,0,2);
 		play_btn.visible = false;
 
 		palavras = this.sortArray(palavras); //embaralha a lista de palavras
-
-		
-		//label_palavra = this.add.text(this.world.centerX, this.world.centerY, "Palavra", style);
-
-		//label_dica.anchor.setTo(0.5);
 		
 		this.get_palavra_nova();
 		this.sprite_letras();
@@ -61,7 +53,7 @@ ForcaBRAS.TesteSprite.prototype = {
 		this.addBotoesTeclado();
 	},
 
-	jogarNovamente: function(){ console.log(pontuacao);
+	jogarNovamente: function(){ //console.log(pontuacao);
 		this.removeBlocosDica();
 		this.get_palavra_nova();
 
@@ -80,7 +72,7 @@ ForcaBRAS.TesteSprite.prototype = {
 
 		sprite_personagem.frame = 0; //frame do personagem inicial
 		sprite_personagem.visible = true;
-		
+		sprite_personagem.alpha = 1;
 	},
 
 	/**
@@ -189,12 +181,17 @@ ForcaBRAS.TesteSprite.prototype = {
 				if(tamanho_palavra_aux == 0){ //concluiu a palavra
 					label_parabens.visible = true; 
 					this.on_Off_Botoes(false); //desabilita os botões
+
 					pontuacao = pontuacao + 10; //ATUALIZA A PONTUAÇÃO
+					ponto_label.setText('Pontos: '+pontuacao);
+
 					play_btn.visible = true;
 					this.deleteDicaLabel(); //deleta o label da dica iniciar um novo
 
 					sprite_personagem.frame = 0; //frame do personagem inicial
 					sprite_personagem.visible = true;
+					
+					sprite_personagem.alpha = 1;
 				}
 			} 
 		}
@@ -217,8 +214,13 @@ ForcaBRAS.TesteSprite.prototype = {
 	removeParteDoCorpo: function(){
 		if(sprite_personagem.frame != 6){
 			sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
+			sprite_personagem.alpha = sprite_personagem.alpha - 0.142; //diminui a opacidade do personagem
 		} else { //CONDIÇÃO DE PERDER!
-			pontuacao = pontuacao -2;
+			if(pontuacao >= 4){ //para nao ficar pontuacao negativa
+				pontuacao = pontuacao -4;
+			}
+			
+			ponto_label.setText('Pontos: '+pontuacao);
 			sprite_personagem.visible = false;
 			label_perdeu.visible = true;
 			this.on_Off_Botoes(false); //desabilita os botões

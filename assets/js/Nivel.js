@@ -11,16 +11,20 @@ ForcaBRAS.TelaNivel.prototype = {
 		this.createButton('facil', 500, 250, 
         function(){
             escolha_nivel = "f"; //fácil
-            var scene = this.pegarSala(nome, escolha_nivel);
+            if(multiplayer) {
+                this.pegarSala(nome, escolha_nivel);
+            }
 
-            this.state.start(scene); //passa para a escolha de personagens
+            this.state.start('Personagens'); //passa para a escolha de personagens
         });
         this.createButton('dificil', 500, 370, 
         function(){
             escolha_nivel = "d"; //difícil
-            var scene = this.pegarSala(nome, escolha_nivel);
+            if(multiplayer) {
+                this.pegarSala(nome, escolha_nivel);
+            }
 
-            this.state.start(scene); //passa para a escolha de personagens
+            this.state.start('Personagens'); //passa para a escolha de personagens
         });
         this.createButton('voltar', 500, 500, 
         function(){

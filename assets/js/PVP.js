@@ -14,12 +14,13 @@ var dica = ""; //dica da palavra
 var array_sprites_palavra = []; //array para os labels da palavra
 var label_perdeu, label_parabens;
 var play_btn;
-var pontuacao = 0; //pontuação do jogador (10 palavra completa, -2 palavra errada)
+var pontuacao = 0, pontuacao_adversario = 0; //pontuação do jogador (10 palavra completa)
 var blocos = []; //blocos da dica
 var sprite_personagem_adversario = [];
 var sala, nome, nome_adversario, personagem_adversario;
 var player_principal = false;
 var player_label, player_label_adversario, ponto_label, ponto_label_adversario;
+var label_aviso; //pode ser usuario desconectado etc...
 var bloquear;
 var minha_vez;
 var letras_clicadas = []; //listra de letras que ja foram clicadas
@@ -27,12 +28,74 @@ var letras_clicadas = []; //listra de letras que ja foram clicadas
 var Client = {};
 Client.socket = io.connect(); //conexão do cliente e servidor da aplicação
 
+Client.socket.on('connect_error', function(err) {
+	try{
+		label_aviso.text = "ERRO DE CONEXÃO!";
+		label_aviso.visible = true;
+		on_off_botoes(false);
+		mostrarPalavraCompleta();
+		liberarSala();
+	} catch (e){
+		console.log('Error connecting to server');
+	} finally{
+		liberarSala(); 
+		setTimeout(atualizaPagina, 5000); //atualiza a pagina em 5 segundos
+	}
+});
+
+function atualizaPagina(){
+	alert("Erro de Conexão!");
+	location.reload();
+};
+
 Client.mensagemSala = function(sala, nome, personagem_adv){
 	Client.socket.emit(sala, nome);
 	if(!player_principal){
 		Client.socket.emit('atualizar_sala', personagem_adv);
 	}
 };
+
+//Quando um player da sala desconectar
+Client.socket.on('disconnect_player', function(usuario){
+	if(usuario.sala == sala){
+		console.log("Jogador desconectou: ",usuario);
+		usuarioDesconectado();
+	}
+});
+
+function usuarioDesconectado(){
+	label_aviso.text = "ADVERSÁRIO DESCONECTADO!";
+	label_aviso.visible = true;
+	player_label_adversario.fill = '#FF0000';
+	ponto_label_adversario.fill = '#FF0000';
+	
+	player_label.fill = '#000';
+	ponto_label.fill = '#000';
+
+	on_off_botoes(false);
+	mostrarPalavraCompleta();
+	liberarSala();
+};
+
+function liberarSala(){
+	firebaseRef = firebase.database(); 
+	//pesquisa no banco de dados firebase... e atualiza
+	for(i = 0; i < salas.length; i++){ 
+		if(salas[i].sala == sala){
+			console.log("Liberando a "+sala);
+			firebaseRef.ref("Salas/" + i).set({
+				sala: sala,
+				player1: "",
+				nivel: "",
+				personagem1: "",
+				personagem2: "",
+				player2: "",
+				pontos1: "",
+				pontos2: ""
+			});
+		}
+	}
+}
 
 Client.socket.on('sala_atualizada', async function(personagem_adv){
 	if(player_principal){ //somente se for o player principal/inicial
@@ -128,65 +191,103 @@ Client.getPalavra = function(){
  * e exibe a quantidade
  */
 async function verificaLetra(botao, letra, controle) {
-	var frame; //frame para certo (4) ou errado (5)
-	var condicao; 
-	var palavra_aux = palavra.split(""); //transforma a palavra em array
-	
-	if(controle){ //se controle for verdadeiro, significa que veio de quem clicou no botão
-		Client.socket.emit('click', nome); //envia a letra pro servidor
-		Client.socket.emit('send_letra', letra); //envia a letra pro servidor
-		letras_clicadas.push(letra); //console.log(letras_clicadas); 
-	} //serve para não entrar em um loop infinito entre servidor-cliente
+	return new Promise((resolve, reject) => {
+		var frame; //frame para certo (4) ou errado (5)
+		var condicao; 
+		var palavra_aux = palavra.split(""); //transforma a palavra em array
+		
+		if(controle){ //se controle for verdadeiro, significa que veio de quem clicou no botão
+			Client.socket.emit('click', nome); //envia a letra pro servidor
+			Client.socket.emit('send_letra', letra); //envia a letra pro servidor
+			letras_clicadas.push(letra); //console.log(letras_clicadas); 
+		} //serve para não entrar em um loop infinito entre servidor-cliente
 
-	for(var i = 0; i<palavra.length; i++){ 
-		if(letra == ignora_acentuacao(palavra_aux[i])){ 
-			revela_letras(palavra_aux[i].toLowerCase(), i);
+		for(var i = 0; i<palavra.length; i++){ 
+			if(letra == ignora_acentuacao(palavra_aux[i])){ 
+				revela_letras(palavra_aux[i].toLowerCase(), i);
 
-			condicao = true; //basta entrar uma vez para a condição ser verdadeira
-			
-			tamanho_palavra_aux--; //decrementa 
+				condicao = true; //basta entrar uma vez para a condição ser verdadeira
+				
+				tamanho_palavra_aux--; //decrementa 
 
-			if(tamanho_palavra_aux == 0){ //concluiu a palavra
-				label_parabens.visible = true; 
-				restarta_Botoes(false); //desabilita os botões
-				if(minha_vez) {
-					pontuacao = pontuacao + 10; //atualiza pontuação se for sua vez
-					minha_vez = false; 
-					on_off_botoes(false);
-				} else{
-					minha_vez = true; //console.log("ganhou a vez");
+				if(tamanho_palavra_aux == 0){ //concluiu a palavra
+					label_parabens.visible = true; 
+					restarta_Botoes(false); //desabilita os botões
+					if(minha_vez) {
+						pontuacao = pontuacao + 10; //atualiza pontuação se for sua vez
+						ponto_label.setText('Pontos: '+pontuacao);
+						minha_vez = false; 
+
+						player_label.fill = '#000';
+						ponto_label.fill = '#000';
+
+						player_label_adversario.fill = '#088A08';
+						ponto_label_adversario.fill = '#088A08';
+
+						on_off_botoes(false);
+					} else{
+						pontuacao_adversario = pontuacao_adversario + 10;
+						ponto_label_adversario.setText('Pontos: '+pontuacao_adversario);
+						minha_vez = true; //console.log("ganhou a vez");
+
+						player_label.fill = '#088A08';
+						ponto_label.fill = '#088A08';
+
+						player_label_adversario.fill = '#000';
+						ponto_label_adversario.fill = '#000';
+					}
+
+					letras_clicadas = []; //restarta lista de letras clicadas
+					
+					deleteDicaLabel(); //deleta o label da dica iniciar um novo
+
+					sprite_personagem.frame = 0; //frame do personagem inicial
+					sprite_personagem.visible = true;
+					sprite_personagem.alpha = 1;
+
+					sprite_personagem_adversario.frame = 0; //frame do personagem inicial
+					sprite_personagem_adversario.visible = true;
+					sprite_personagem_adversario.alpha = 1;
+
+					objeto_atual = null; //reinicia a palavra
+
+					play_btn.visible = true; //aparece apenas para o player principal da fase
+					
 				}
-
-				letras_clicadas = []; //restarta lista de letras clicadas
-				
-				deleteDicaLabel(); //deleta o label da dica iniciar um novo
-
-				sprite_personagem.frame = 0; //frame do personagem inicial
-				sprite_personagem.visible = true;
-				objeto_atual = null; //reinicia a palavra
-
-				play_btn.visible = true; //aparece apenas para o playe principal da fase
-				
-			}
-		} 
-	}
-
-	botao.inputEnabled = false; //desabilita o botão
-	if(condicao){ 
-		frame = 4; //certo 
-	} else { 
-		frame = 5; //errado 
-		removeParteDoCorpo();
-		if(minha_vez){ //se for a vez do player, desabilita botões e passa para o outro
-			on_off_botoes(false);
-			minha_vez = false; //perdeu a vez
-		} else{
-			liberar_botoes(); 
-			minha_vez = true; //ganhou a vez
+			} 
 		}
-	}
 
-	return frame;
+		botao.inputEnabled = false; //desabilita o botão
+		if(condicao){ 
+			frame = 4; //certo 
+		} else { 
+			frame = 5; //errado 
+			transparecePersonagem();
+			if(minha_vez){ //se for a vez do player, desabilita botões e passa para o outro
+				on_off_botoes(false);
+				minha_vez = false; //perdeu a vez
+				
+				player_label.fill = '#000';
+				ponto_label.fill = '#000';
+
+				player_label_adversario.fill = '#088A08';
+				ponto_label_adversario.fill = '#088A08';
+			} else{
+				liberar_botoes(); 
+				minha_vez = true; //ganhou a vez
+
+				player_label.fill = '#088A08';
+				ponto_label.fill = '#088A08';
+
+				player_label_adversario.fill = '#000';
+				ponto_label_adversario.fill = '#000';
+			}
+		}
+
+		resolve(frame);
+
+		return frame;
+	});
 };
 
 /**
@@ -271,7 +372,7 @@ function on_off_botoes(condicao){
  * 
  * 
  */
-function removeParteDoCorpo(){
+function transparecePersonagem(){
 	if(minha_vez){ //se for a vez do personagem
 		if(sprite_personagem.frame != 6){
 			sprite_personagem.frame++; //remove uma parte do corpo (muda de sprite) do personagem)
@@ -283,6 +384,12 @@ function removeParteDoCorpo(){
 			mostrarPalavraCompleta(); //mostra a palavra completa
 			deleteDicaLabel(); //deleta o label da dica iniciar um novo
 			minha_vez = false; //passa a vez
+
+			player_label.fill = '#000';
+			ponto_label.fill = '#000';
+
+			player_label_adversario.fill = '#088A08';
+			ponto_label_adversario.fill = '#088A08';
 			play_btn.visible = true;
 		}
 	} else{
@@ -296,6 +403,13 @@ function removeParteDoCorpo(){
 			mostrarPalavraCompleta(); //mostra a palavra completa
 			deleteDicaLabel(); //deleta o label da dica iniciar um novo
 			minha_vez = true;
+
+			player_label.fill = '#088A08';
+			ponto_label.fill = '#088A08';
+
+			player_label_adversario.fill = '#000';
+			ponto_label_adversario.fill = '#000';
+
 			play_btn.visible = true;
 		}
 	}
@@ -595,33 +709,9 @@ ForcaBRAS.PVP.prototype = {
 		
 		label_perdeu = this.add.image(320, 150, 'Perdeu'); 
 		label_perdeu.visible = false;
-		label_parabens = this.add.image(283, 105, 'Parabens'); 
+		label_parabens = this.add.image(233, 105, 'Parabens'); 
 		label_parabens.visible = false;
 		
-		var style = { font: "bold 16px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle"};
-
-		if(player_principal){//ações somente para o player principal
-			palavras = this.sortArray(palavras); //embaralha a lista de palavras
-
-			this.get_palavra_nova();
-			this.sprite_letras();
-
-			ponto_label = this.add.text(100, 120, 'Pontos: 0', style);
-			ponto_label_adversario = this.add.text(724, 120, '', style); 
-
-			minha_vez = true; //vez de jogar
-		} else{ 
-			await this.get_palavra_nova(); 
-			this.sprite_letras();
-
-			ponto_label = this.add.text(100, 120, 'Pontos: 0', style);
-			ponto_label_adversario = this.add.text(724, 120, 'Pontos: 0', style); 
-		}
-
-		//aqui vai o nome do personagem e abaixo a pontuação
-		player_label = this.add.text(100, 100, nome, style);
-		player_label_adversario = this.add.text(724, 100, nome_adversario, style); 
-
 		sprite_personagem = this.add.sprite(100, 135, personagem);
 		sprite_personagem.frame = 0;
 		sprite_personagem.scale.setTo(0.90,0.90);
@@ -629,8 +719,42 @@ ForcaBRAS.PVP.prototype = {
 		sprite_personagem_adversario = this.add.sprite(724, 135, personagem_adversario);
 		sprite_personagem_adversario.frame = 0;
 		sprite_personagem_adversario.scale.setTo(0.90,0.90);
-		
-		//botões 
+
+		//, backgroundColor: "white"
+		var style = { font: "bold 16px Arial", fill: "#000", boundsAlignH: "center", boundsAlignV: "middle", 
+					backgroundColor: ""};
+					
+		//aqui vai o nome do personagem e abaixo a pontuação
+		player_label = this.add.text(100, 87, nome, style);
+		player_label_adversario = this.add.text(724, 87, nome_adversario, style); 
+
+		var style_2 = { font: "bold 18px Arial", fill: "#FF0000", boundsAlignH: "center", boundsAlignV: "middle", 
+					backgroundColor: "white"};
+		label_aviso = this.add.text(this.world.centerX, this.world.centerY-100, "", style_2);
+		label_aviso.anchor.set(0.5);
+		label_aviso.visible = false;
+
+		if(player_principal){//ações somente para o player principal
+			palavras = this.sortArray(palavras); //embaralha a lista de palavras
+
+			this.get_palavra_nova();
+			this.sprite_letras();
+
+			ponto_label = this.add.text(100, 110, 'Pontos: 0', style);
+			ponto_label_adversario = this.add.text(724, 110, '', style); 
+
+			minha_vez = true; //vez de jogar
+		} else{ 
+			await this.get_palavra_nova(); 
+			this.sprite_letras();
+
+			ponto_label = this.add.text(100, 110, 'Pontos: 0', style);
+			ponto_label_adversario = this.add.text(724, 110, 'Pontos: 0', style); 
+			
+			player_label_adversario.fill = '#088A08';
+			ponto_label_adversario.fill = '#088A08';
+		}
+		 
 		var voltar = this.add.button(850, 10, 'voltar_menor', function(){
             this.state.start('MainMenu');
 		}, this, 1,0,2);
@@ -704,6 +828,9 @@ ForcaBRAS.PVP.prototype = {
 
 		sprite_personagem_adversario.loadTexture(personagem_adversario);
 		on_off_botoes(true); //habilita botões para o player principal
+		player_label.fill = '#088A08';
+		ponto_label.fill = '#088A08';
+
 	},
 
 	jogarNovamente: async function(){ 
@@ -844,211 +971,211 @@ ForcaBRAS.PVP.prototype = {
 	addBotoesTeclado: function() {
 		var x = 96; var y = 435; var espacamento = 64;
 
-		A = this.add.button(x, y, 'A'+escolha_nivel, function(){
-			var frame = verificaLetra(A, 'A', true);
-			A.setFrames(frame);
+		A = this.add.button(x, y, 'A'+escolha_nivel, async function(){
+			var frame = await verificaLetra(A, 'A', true); console.log(frame);
+			//A.setFrames(frame);
+			A.frame = frame;
+		}, this, 2,1,3);
+
+		x = x + espacamento;
+
+		B = this.add.button(x, y, 'B'+escolha_nivel, async function(){
+			var frame = await verificaLetra(B, 'B', true);
+			B.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		B = this.add.button(x, y, 'B'+escolha_nivel, function(){
-			var frame = verificaLetra(B, 'B', true);
-			B.setFrames(frame);
+		C = this.add.button(x, y, 'C'+escolha_nivel, async function(){
+			var frame = await verificaLetra(C, 'C', true);
+			C.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		C = this.add.button(x, y, 'C'+escolha_nivel, function(){
-			var frame = verificaLetra(C, 'C', true);
-			C.setFrames(frame);
+		D = this.add.button(x, y, 'D'+escolha_nivel, async function(){
+			var frame = await verificaLetra(D, 'D', true);
+			D.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		D = this.add.button(x, y, 'D'+escolha_nivel, function(){
-			var frame = verificaLetra(D, 'D', true);
-			D.setFrames(frame);
+		E = this.add.button(x, y, 'E'+escolha_nivel, async function(){
+			var frame = await verificaLetra(E, 'E', true);
+			E.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		E = this.add.button(x, y, 'E'+escolha_nivel, function(){
-			var frame = verificaLetra(E, 'E', true);
-			E.setFrames(frame);
+		F = this.add.button(x, y, 'F'+escolha_nivel, async function(){
+			var frame = await verificaLetra(F, 'F', true);
+			F.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		F = this.add.button(x, y, 'F'+escolha_nivel, function(){
-			var frame = verificaLetra(F, 'F', true);
-			F.setFrames(frame);
+		G = this.add.button(x, y, 'G'+escolha_nivel, async function(){
+			var frame = await verificaLetra(G, 'G', true);
+			G.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		G = this.add.button(x, y, 'G'+escolha_nivel, function(){
-			var frame = verificaLetra(G, 'G', true);
-			G.setFrames(frame);
+		H = this.add.button(x, y, 'H'+escolha_nivel, async function(){
+			var frame = await verificaLetra(H, 'H', true);
+			H.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		H = this.add.button(x, y, 'H'+escolha_nivel, function(){
-			var frame = verificaLetra(H, 'H', true);
-			H.setFrames(frame);
+		I = this.add.button(x, y, 'I'+escolha_nivel, async function(){
+			var frame = await verificaLetra(I, 'I', true);
+			I.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		I = this.add.button(x, y, 'I'+escolha_nivel, function(){
-			var frame = verificaLetra(I, 'I', true);
-			I.setFrames(frame);
+		J = this.add.button(x, y, 'J'+escolha_nivel, async function(){
+			var frame = await verificaLetra(J, 'J', true);
+			J.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		J = this.add.button(x, y, 'J'+escolha_nivel, function(){
-			var frame = verificaLetra(J, 'J', true);
-			J.setFrames(frame);
+		K = this.add.button(x, y, 'K'+escolha_nivel, async function(){
+			var frame = await verificaLetra(K, 'K', true);
+			K.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		K = this.add.button(x, y, 'K'+escolha_nivel, function(){
-			var frame = verificaLetra(K, 'K', true);
-			K.setFrames(frame);
+		L = this.add.button(x, y, 'L'+escolha_nivel, async function(){
+			var frame = await verificaLetra(L, 'L', true);
+			L.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		L = this.add.button(x, y, 'L'+escolha_nivel, function(){
-			var frame = verificaLetra(L, 'L', true);
-			L.setFrames(frame);
-
-		}, this, 2,1,3);
-
-		x = x + espacamento;
-
-		M = this.add.button(x, y, 'M'+escolha_nivel, function(){
-			var frame = verificaLetra(M, 'M', true);
-			M.setFrames(frame);
+		M = this.add.button(x, y, 'M'+escolha_nivel, async function(){
+			var frame = await verificaLetra(M, 'M', true);
+			M.frame = frame;
 
 		}, this, 2,1,3);
 
 		
 		y = y + espacamento; x = 96;
 
-		N = this.add.button(x, y, 'N'+escolha_nivel, function(){
-			var frame = verificaLetra(N, 'N', true);
-			N.setFrames(frame);
+		N = this.add.button(x, y, 'N'+escolha_nivel, async function(){
+			var frame = await verificaLetra(N, 'N', true);
+			N.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		O = this.add.button(x, y, 'O'+escolha_nivel, function(){
-			var frame = verificaLetra(O, 'O', true);
-			O.setFrames(frame);
+		O = this.add.button(x, y, 'O'+escolha_nivel, async function(){
+			var frame = await verificaLetra(O, 'O', true);
+			O.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		P = this.add.button(x, y, 'P'+escolha_nivel, function(){
-			var frame = verificaLetra(P, 'P', true);
-			P.setFrames(frame);
+		P = this.add.button(x, y, 'P'+escolha_nivel, async function(){
+			var frame = await verificaLetra(P, 'P', true);
+			P.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		Q = this.add.button(x, y, 'Q'+escolha_nivel, function(){
-			var frame = verificaLetra(Q, 'Q', true);
-			Q.setFrames(frame);
+		Q = this.add.button(x, y, 'Q'+escolha_nivel, async function(){
+			var frame = await verificaLetra(Q, 'Q', true);
+			Q.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		R = this.add.button(x, y, 'R'+escolha_nivel, function(){
-			var frame = verificaLetra(R, 'R', true);
-			R.setFrames(frame);
+		R = this.add.button(x, y, 'R'+escolha_nivel, async function(){
+			var frame = await verificaLetra(R, 'R', true);
+			R.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		S = this.add.button(x, y, 'S'+escolha_nivel, function(){
-			var frame = verificaLetra(S, 'S', true);
-			S.setFrames(frame);
+		S = this.add.button(x, y, 'S'+escolha_nivel, async function(){
+			var frame = await verificaLetra(S, 'S', true);
+			S.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		T = this.add.button(x, y, 'T'+escolha_nivel, function(){
-			var frame = verificaLetra(T, 'T', true);
-			T.setFrames(frame);
+		T = this.add.button(x, y, 'T'+escolha_nivel, async function(){
+			var frame = await verificaLetra(T, 'T', true);
+			T.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		U = this.add.button(x, y, 'U'+escolha_nivel, function(){
-			var frame = verificaLetra(U, 'U', true);
-			U.setFrames(frame);
+		U = this.add.button(x, y, 'U'+escolha_nivel, async function(){
+			var frame = await verificaLetra(U, 'U', true);
+			U.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		V = this.add.button(x, y, 'V'+escolha_nivel, function(){
-			var frame = verificaLetra(V, 'V', true);
-			V.setFrames(frame);
+		V = this.add.button(x, y, 'V'+escolha_nivel, async function(){
+			var frame = await verificaLetra(V, 'V', true);
+			V.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		W = this.add.button(x, y, 'W'+escolha_nivel, function(){
-			var frame = verificaLetra(W, 'W', true);
-			W.setFrames(frame);
+		W = this.add.button(x, y, 'W'+escolha_nivel, async function(){
+			var frame = await verificaLetra(W, 'W', true);
+			W.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		X = this.add.button(x, y, 'X'+escolha_nivel, function(){
-			var frame = verificaLetra(X, 'X', true);
-			X.setFrames(frame);
+		X = this.add.button(x, y, 'X'+escolha_nivel, async function(){
+			var frame = await verificaLetra(X, 'X', true);
+			X.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		Y = this.add.button(x, y, 'Y'+escolha_nivel, function(){
-			var frame = verificaLetra(Y, 'Y', true);
-			Y.setFrames(frame);
+		Y = this.add.button(x, y, 'Y'+escolha_nivel, async function(){
+			var frame = await verificaLetra(Y, 'Y', true);
+			Y.frame = frame;
 
 		}, this, 2,1,3);
 
 		x = x + espacamento;
 
-		Z = this.add.button(x, y, 'Z'+escolha_nivel, function(){
-			var frame = verificaLetra(Z, 'Z', true);
-			Z.setFrames(frame);
+		Z = this.add.button(x, y, 'Z'+escolha_nivel, async function(){
+			var frame = await verificaLetra(Z, 'Z', true);
+			Z.frame = frame;
 
 		}, this, 2,1,3);
 
