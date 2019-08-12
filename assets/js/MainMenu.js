@@ -22,10 +22,6 @@ ForcaBRAS.MainMenu.prototype = {
 
     },
 
-    update: function () {
-        
-    },
-
     createButton: function(string, x, y, callback){
         this.add.button(x, y, string, callback, this, 1,0,2);
     },

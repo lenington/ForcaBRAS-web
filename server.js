@@ -10,7 +10,7 @@ app.use('/node_modules', express.static(__dirname + '/node_modules'));
 app.use('/bower_components/firebase', express.static(__dirname + '/bower_components/firebase'));
 
 app.get('/', function(req, res){
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(__dirname + '/ForcaBRAS-web.html');
 });
 
 server.listen(process.env.PORT || 3000,function(){

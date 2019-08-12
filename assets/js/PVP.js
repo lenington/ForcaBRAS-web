@@ -29,17 +29,19 @@ var Client = {};
 Client.socket = io.connect(); //conexão do cliente e servidor da aplicação
 
 Client.socket.on('connect_error', function(err) {
-	try{
+	if(multiplayer){
+		try{
 		label_aviso.text = "ERRO DE CONEXÃO!";
 		label_aviso.visible = true;
 		on_off_botoes(false);
 		mostrarPalavraCompleta();
 		liberarSala();
-	} catch (e){
-		console.log('Error connecting to server');
-	} finally{
-		liberarSala(); 
-		setTimeout(atualizaPagina, 5000); //atualiza a pagina em 5 segundos
+		} catch (e){
+			console.log('Error connecting to server');
+		} finally{
+			liberarSala(); 
+			setTimeout(atualizaPagina, 5000); //atualiza a pagina em 5 segundos
+		}
 	}
 });
 

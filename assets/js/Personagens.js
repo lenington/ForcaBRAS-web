@@ -11,28 +11,28 @@ ForcaBRAS.Personagens.prototype = {
         function(){
             personagem = 'menino_1'; 
             if(multiplayer == false){
-                this.state.start('TesteSprite');
+                this.state.start('Game');
             } else this.state.start('PVP');
         });
         this.createButton('personagem_2', 290, 200, 
         function(){
             personagem = 'menino_2'; 
             if(multiplayer == false){
-                this.state.start('TesteSprite');
+                this.state.start('Game');
             } else this.state.start('PVP');
         });
         this.createButton('personagem_3', 520, 200, 
         function(){
             personagem = 'menina_1'; 
             if(multiplayer == false){
-                this.state.start('TesteSprite');
+                this.state.start('Game');
             } else this.state.start('PVP');
         });
         this.createButton('personagem_4', 750, 200, 
         function(){
             personagem = 'menina_2'; 
             if(multiplayer == false){
-                this.state.start('TesteSprite');
+                this.state.start('Game');
             } else this.state.start('PVP');
         });
 
